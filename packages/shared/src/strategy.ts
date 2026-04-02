@@ -212,7 +212,8 @@ export function getRecommendation(
   strategy: StrategyTable,
   _rules: TableRules,
 ): StrategyAction | null {
-  const dealerRank = state.dealerUpcard.rank;
+  const rawRank = state.dealerUpcard.rank;
+  const dealerRank: Rank = (rawRank === "J" || rawRank === "Q" || rawRank === "K") ? "10" : rawRank;
 
   // Pairs first (if split is allowed)
   if (state.isPair && state.canSplit) {
