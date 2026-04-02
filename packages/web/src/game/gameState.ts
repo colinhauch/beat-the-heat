@@ -20,13 +20,13 @@ import {
 // ─── Game Phase ───────────────────────────────────────────────────────────────
 
 export type GamePhase =
-  | "idle"          // waiting to start / place bet
-  | "betting"       // player is choosing bet
-  | "dealing"       // initial deal in progress
-  | "playerTurn"    // player making decisions
-  | "dealerTurn"    // dealer revealing / drawing
-  | "resolution"    // hand outcome shown
-  | "shoeEnd";      // cut card reached, shuffle pending
+  | "idle" // waiting to start / place bet
+  | "betting" // player is choosing bet
+  | "dealing" // initial deal in progress
+  | "playerTurn" // player making decisions
+  | "dealerTurn" // dealer revealing / drawing
+  | "resolution" // hand outcome shown
+  | "shoeEnd"; // cut card reached, shuffle pending
 
 // ─── Game State ───────────────────────────────────────────────────────────────
 
@@ -36,7 +36,7 @@ export interface GameState {
   shoe: Card[];
   cardsDealt: number;
   runningCount: number;
-  cutCard: number;           // index in shoe where cut card is placed
+  cutCard: number; // index in shoe where cut card is placed
   currentHand: Hand | null;
   pendingBet: number;
   playerStack: number;
@@ -62,7 +62,10 @@ function makeHandId(): string {
 
 // ─── Initial State ────────────────────────────────────────────────────────────
 
-export function initialGameState(rules: TableRules = DEFAULT_TABLE_RULES, startingStack = 1000): GameState {
+export function initialGameState(
+  rules: TableRules = DEFAULT_TABLE_RULES,
+  startingStack = 1000,
+): GameState {
   const shoe = buildShoe(rules.decks);
   const cutCard = cutCardIndex(rules);
   const sessionId = makeSessionId();
@@ -87,11 +90,20 @@ export function initialGameState(rules: TableRules = DEFAULT_TABLE_RULES, starti
 export type GameAction =
   | { type: "SET_BET"; amount: number }
   | { type: "DEAL" }
-  | { type: "PLAYER_ACTION"; action: PlayerAction; recommended: PlayerAction | null }
+  | {
+      type: "PLAYER_ACTION";
+      action: PlayerAction;
+      recommended: PlayerAction | null;
+    }
   | { type: "DEALER_DRAW" }
   | { type: "NEXT_HAND" }
   | { type: "SHUFFLE" }
-  | { type: "CHANGE_RULES"; rules: TableRules };
+  | { type: "CHANGE_RULES"; rules: TableRules }
+  | {
+      type: "SET_DEBUG_HAND";
+      playerCards: [Card, Card];
+      dealerCards: [Card, Card];
+    }; // for testing specific scenarios, bypasses normal dealing and sets up a hand directly
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -126,6 +138,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         phase: "betting",
       };
     }
+
+    case "SET_DEBUG_HAND":
+      return handleDebugHand(state, action.playerCards, action.dealerCards);
 
     default:
       return state;
@@ -171,15 +186,21 @@ function handleDeal(state: GameState): GameState {
 
   if (playerEval.isBlackjack) {
     // Resolve blackjack immediately (simplified: no dealer blackjack check for now)
-    const payout = s.session.tableRules.blackjackPayout === "3:2"
-      ? Math.floor(s.pendingBet * 1.5)
-      : Math.floor(s.pendingBet * 1.2);
+    const payout =
+      s.session.tableRules.blackjackPayout === "3:2"
+        ? Math.floor(s.pendingBet * 1.5)
+        : Math.floor(s.pendingBet * 1.2);
     const resolvedHand: Hand = {
       ...hand,
       outcome: "blackjack",
       payout,
     };
-    return finishHand(s, resolvedHand, newStack + s.pendingBet + payout, dealerCards);
+    return finishHand(
+      s,
+      resolvedHand,
+      newStack + s.pendingBet + payout,
+      dealerCards,
+    );
   }
 
   return {
@@ -193,8 +214,78 @@ function handleDeal(state: GameState): GameState {
   };
 }
 
-// ─── Player Action ────────────────────────────────────────────────────────────
+// ─── Debug Hand ───────────────────────────────────────────────────────────────
 
+function handleDebugHand(
+  state: GameState,
+  playerCards: [Card, Card],
+  dealerCards: [Card, Card],
+): GameState {
+  const playerEval = evaluateHand(playerCards);
+  const dealerEval = evaluateHand(dealerCards);
+
+  const hand: Hand = {
+    handId: makeHandId(),
+    decisions: [],
+    outcome: null,
+    betAmount: state.pendingBet,
+    payout: 0,
+    isBlackjack: playerEval.isBlackjack,
+    playerInitialHand: playerCards,
+    dealerFinalHand: dealerCards,
+  };
+
+  const newStack = state.playerStack - state.pendingBet;
+
+  // Check for blackjacks
+  if (playerEval.isBlackjack && dealerEval.isBlackjack) {
+    // Both have blackjack = push
+    const resolvedHand: Hand = { ...hand, outcome: "push", payout: 0 };
+    return finishHand(
+      state,
+      resolvedHand,
+      newStack + state.pendingBet,
+      dealerCards,
+    );
+  }
+
+  if (dealerEval.isBlackjack) {
+    // Dealer blackjack, player loses
+    const resolvedHand: Hand = {
+      ...hand,
+      outcome: "lose",
+      payout: -state.pendingBet,
+    };
+    return finishHand(state, resolvedHand, newStack, dealerCards);
+  }
+
+  if (playerEval.isBlackjack) {
+    // Player blackjack
+    const payout =
+      state.session.tableRules.blackjackPayout === "3:2"
+        ? Math.floor(state.pendingBet * 1.5)
+        : Math.floor(state.pendingBet * 1.2);
+    const resolvedHand: Hand = { ...hand, outcome: "blackjack", payout };
+    return finishHand(
+      state,
+      resolvedHand,
+      newStack + state.pendingBet + payout,
+      dealerCards,
+    );
+  }
+
+  return {
+    ...state,
+    phase: "playerTurn",
+    playerStack: newStack,
+    currentHand: hand,
+    splitHands: [],
+    activeSplitIndex: 0,
+    feedback: null,
+  };
+}
+
+// ─── Player Action ────────────────────────────────────────────────────────────
 
 function handlePlayerAction(
   state: GameState,
@@ -206,18 +297,36 @@ function handlePlayerAction(
 
   const decision: Decision = { tableState, playerAction: action };
   const isCorrect = recommended !== null ? action === recommended : null;
-  const feedback: DecisionFeedback = { playerAction: action, recommended, isCorrect };
+  const feedback: DecisionFeedback = {
+    playerAction: action,
+    recommended,
+    isCorrect,
+  };
 
-  const updatedHand: Hand = { ...hand, decisions: [...hand.decisions, decision] };
+  const updatedHand: Hand = {
+    ...hand,
+    decisions: [...hand.decisions, decision],
+  };
 
   if (action === "surrender") {
     const payout = -Math.floor(hand.betAmount / 2);
     const resolvedHand: Hand = { ...updatedHand, outcome: "surrender", payout };
-    return finishHand(state, resolvedHand, state.playerStack + hand.betAmount + payout, hand.dealerFinalHand, feedback);
+    return finishHand(
+      state,
+      resolvedHand,
+      state.playerStack + hand.betAmount + payout,
+      hand.dealerFinalHand,
+      feedback,
+    );
   }
 
   if (action === "stand") {
-    return { ...state, currentHand: updatedHand, phase: "dealerTurn", feedback };
+    return {
+      ...state,
+      currentHand: updatedHand,
+      phase: "dealerTurn",
+      feedback,
+    };
   }
 
   if (action === "hit") {
@@ -228,10 +337,16 @@ function handlePlayerAction(
     const eval_ = evaluateHand(newCards);
 
     // Update the tableState in the last decision to reflect new card
-    const lastDecision = updatedHand.decisions[updatedHand.decisions.length - 1];
+    const lastDecision =
+      updatedHand.decisions[updatedHand.decisions.length - 1];
     const updatedDecision: Decision = {
       ...lastDecision,
-      tableState: { ...lastDecision.tableState, playerHand: newCards, handTotal: eval_.total, isSoft: eval_.isSoft },
+      tableState: {
+        ...lastDecision.tableState,
+        playerHand: newCards,
+        handTotal: eval_.total,
+        isSoft: eval_.isSoft,
+      },
     };
     const handWithNewCard: Hand = {
       ...updatedHand,
@@ -240,8 +355,18 @@ function handlePlayerAction(
     };
 
     if (eval_.isBust) {
-      const resolvedHand: Hand = { ...handWithNewCard, outcome: "bust", payout: -hand.betAmount };
-      return finishHand(s, resolvedHand, s.playerStack, hand.dealerFinalHand, feedback);
+      const resolvedHand: Hand = {
+        ...handWithNewCard,
+        outcome: "bust",
+        payout: -hand.betAmount,
+      };
+      return finishHand(
+        s,
+        resolvedHand,
+        s.playerStack,
+        hand.dealerFinalHand,
+        feedback,
+      );
     }
 
     return { ...s, currentHand: handWithNewCard, feedback };
@@ -256,10 +381,16 @@ function handlePlayerAction(
     const newBet = hand.betAmount * 2;
     const newStack = s.playerStack - hand.betAmount; // extra bet charged
 
-    const lastDecision = updatedHand.decisions[updatedHand.decisions.length - 1];
+    const lastDecision =
+      updatedHand.decisions[updatedHand.decisions.length - 1];
     const updatedDecision: Decision = {
       ...lastDecision,
-      tableState: { ...lastDecision.tableState, playerHand: newCards, handTotal: eval_.total, isSoft: eval_.isSoft },
+      tableState: {
+        ...lastDecision.tableState,
+        playerHand: newCards,
+        handTotal: eval_.total,
+        isSoft: eval_.isSoft,
+      },
     };
     const handAfterDouble: Hand = {
       ...updatedHand,
@@ -268,12 +399,28 @@ function handlePlayerAction(
     };
 
     if (eval_.isBust) {
-      const resolvedHand: Hand = { ...handAfterDouble, outcome: "bust", payout: -newBet };
-      return finishHand(s, resolvedHand, newStack, hand.dealerFinalHand, feedback);
+      const resolvedHand: Hand = {
+        ...handAfterDouble,
+        outcome: "bust",
+        payout: -newBet,
+      };
+      return finishHand(
+        s,
+        resolvedHand,
+        newStack,
+        hand.dealerFinalHand,
+        feedback,
+      );
     }
 
     // After double, go to dealer turn
-    return { ...s, playerStack: newStack, currentHand: handAfterDouble, phase: "dealerTurn", feedback };
+    return {
+      ...s,
+      playerStack: newStack,
+      currentHand: handAfterDouble,
+      phase: "dealerTurn",
+      feedback,
+    };
   }
 
   if (action === "split") {
@@ -332,13 +479,18 @@ function buildCurrentTableState(state: GameState, hand: Hand): TableState {
   if (hand.decisions.length === 0) {
     playerCards = hand.playerInitialHand;
   } else {
-    playerCards = hand.decisions[hand.decisions.length - 1].tableState.playerHand;
+    playerCards =
+      hand.decisions[hand.decisions.length - 1].tableState.playerHand;
   }
 
   const eval_ = evaluateHand(playerCards);
   const dealerUpcard = hand.dealerFinalHand[0];
-  const canDouble = playerCards.length === 2 && state.playerStack >= hand.betAmount;
-  const canSplit = isPair(playerCards) && state.playerStack >= hand.betAmount && state.splitHands.length < rules.maxSplits;
+  const canDouble =
+    playerCards.length === 2 && state.playerStack >= hand.betAmount;
+  const canSplit =
+    isPair(playerCards) &&
+    state.playerStack >= hand.betAmount &&
+    state.splitHands.length < rules.maxSplits;
 
   return {
     playerHand: playerCards,
@@ -360,14 +512,15 @@ function buildCurrentTableState(state: GameState, hand: Hand): TableState {
 
 // ─── Dealer Turn ──────────────────────────────────────────────────────────────
 
-
 function handleDealerDraw(state: GameState): GameState {
   const hand = state.currentHand!;
   const rules = state.session.tableRules;
   const dealerCards = [...hand.dealerFinalHand]; // already includes hole card
   const eval_ = evaluateHand(dealerCards);
 
-  const shouldDraw = eval_.total < 17 || (eval_.isSoft && eval_.total === 17 && rules.dealerHitsSoft17);
+  const shouldDraw =
+    eval_.total < 17 ||
+    (eval_.isSoft && eval_.total === 17 && rules.dealerHitsSoft17);
 
   if (!shouldDraw) {
     // Dealer stands — resolve
@@ -383,17 +536,28 @@ function handleDealerDraw(state: GameState): GameState {
   const newEval = evaluateHand(newDealerCards);
   const updatedHand: Hand = { ...hand, dealerFinalHand: newDealerCards };
 
-  if (newEval.isBust || !( newEval.total < 17 || (newEval.isSoft && newEval.total === 17 && rules.dealerHitsSoft17))) {
+  if (
+    newEval.isBust ||
+    !(
+      newEval.total < 17 ||
+      (newEval.isSoft && newEval.total === 17 && rules.dealerHitsSoft17)
+    )
+  ) {
     return resolveHand(s, updatedHand, newDealerCards);
   }
 
   return { ...s, currentHand: updatedHand };
 }
 
-function resolveHand(state: GameState, hand: Hand, dealerCards: Card[]): GameState {
-  const playerCards = hand.decisions.length > 0
-    ? hand.decisions[hand.decisions.length - 1].tableState.playerHand
-    : hand.playerInitialHand;
+function resolveHand(
+  state: GameState,
+  hand: Hand,
+  dealerCards: Card[],
+): GameState {
+  const playerCards =
+    hand.decisions.length > 0
+      ? hand.decisions[hand.decisions.length - 1].tableState.playerHand
+      : hand.playerInitialHand;
 
   const playerEval = evaluateHand(playerCards);
   const dealerEval = evaluateHand(dealerCards);
@@ -412,8 +576,19 @@ function resolveHand(state: GameState, hand: Hand, dealerCards: Card[]): GameSta
     payout = -hand.betAmount;
   }
 
-  const resolvedHand: Hand = { ...hand, outcome, payout, dealerFinalHand: dealerCards };
-  return finishHand(state, resolvedHand, state.playerStack + hand.betAmount + payout, dealerCards, state.feedback);
+  const resolvedHand: Hand = {
+    ...hand,
+    outcome,
+    payout,
+    dealerFinalHand: dealerCards,
+  };
+  return finishHand(
+    state,
+    resolvedHand,
+    state.playerStack + hand.betAmount + payout,
+    dealerCards,
+    state.feedback,
+  );
 }
 
 function finishHand(
@@ -441,7 +616,10 @@ function finishHand(
 }
 
 function handleNextHand(state: GameState): GameState {
-  if (state.splitHands.length > 0 && state.activeSplitIndex + 1 < state.splitHands.length) {
+  if (
+    state.splitHands.length > 0 &&
+    state.activeSplitIndex + 1 < state.splitHands.length
+  ) {
     const nextIndex = state.activeSplitIndex + 1;
     return {
       ...state,

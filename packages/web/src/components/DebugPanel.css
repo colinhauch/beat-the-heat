@@ -1,0 +1,80 @@
+/* ─── Debug Panel ─────────────────────────────────────────────────────── */
+.debug-panel {
+  padding: 12px 16px;
+  border-top: 1px solid var(--gold-dim);
+  background: rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.debug-header {
+  display: flex;
+  align-items: center;
+}
+
+.debug-title {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+/* ─── Grid ───────────────────────────────────────────────────────────── */
+.debug-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  align-items: center;
+}
+
+.debug-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.debug-select {
+  padding: 4px 6px;
+  font-size: 0.75rem;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  color: var(--text-cream);
+  cursor: pointer;
+}
+
+.debug-select:hover {
+  border-color: var(--gold-mid);
+}
+
+.debug-select:focus {
+  outline: none;
+  border-color: var(--gold-bright);
+}
+
+/* ─── Button ─────────────────────────────────────────────────────────── */
+.debug-btn {
+  padding: 6px 12px;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(201,168,76,0.15);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  color: var(--gold-mid);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.debug-btn:hover {
+  background: rgba(201,168,76,0.25);
+  border-color: var(--gold-mid);
+  color: var(--gold-bright);
+}
+
+.debug-btn:active {
+  transform: scale(0.98);
+}
