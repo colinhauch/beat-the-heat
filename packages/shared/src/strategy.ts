@@ -1,17 +1,27 @@
-import { Rank, StrategyAction, StrategyTable, TableState, TableRules } from "./types";
+import { Rank, PlayerAction, StrategyTable, TableState, TableRules } from "./types";
 
-// ─── Strategy Table Builder ──────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPOSITE ACTIONS
+// ═══════════════════════════════════════════════════════════════════════════════
 //
-// We have multiple strategy tables based on rule variations:
-// - S17 vs H17 (dealer stands/hits on soft 17)
-// - DAS vs No-DAS (double after split allowed)
-// - Surrender vs No-Surrender
+// Composite actions encode conditional logic directly in the table cells.
+// They are resolved at runtime based on the current table rules.
 //
-// Key: {S17|H17}_{DAS|NDAS}_{SUR|NSUR}
+// Legend:
+//   H   = Hit
+//   S   = Stand
+//   Dh  = Double if allowed, else Hit
+//   Ds  = Double if allowed, else Stand
+//   P   = Split (always)
+//   Ph  = Split if DAS allowed, else Hit (treat as hard total)
+//   Rh  = Surrender if allowed, else Hit
+//   Rs  = Surrender if allowed, else Stand
+//   Rp  = Surrender if allowed, else Split
 
-type ActionMap = Record<Rank, StrategyAction>;
+type CompositeAction = "H" | "S" | "Dh" | "Ds" | "P" | "Ph" | "Rh" | "Rs" | "Rp";
+type ActionMap = Record<Rank, CompositeAction>;
 
-function row(vals: [StrategyAction, StrategyAction, StrategyAction, StrategyAction, StrategyAction, StrategyAction, StrategyAction, StrategyAction, StrategyAction, StrategyAction]): ActionMap {
+function row(vals: [CompositeAction, CompositeAction, CompositeAction, CompositeAction, CompositeAction, CompositeAction, CompositeAction, CompositeAction, CompositeAction, CompositeAction]): ActionMap {
   const ranks: Rank[] = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "A"];
   const map = {} as ActionMap;
   ranks.forEach((r, i) => { map[r] = vals[i]; });
@@ -19,243 +29,271 @@ function row(vals: [StrategyAction, StrategyAction, StrategyAction, StrategyActi
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// STRATEGY TABLES - Edit these to change the correct play for each scenario
+// S17 STRATEGY TABLES (Dealer Stands on Soft 17)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-// ─── S17 + DAS + Surrender (Default Vegas) ───────────────────────────────────
-
-const hard_S17_DAS_SUR: Record<number, ActionMap> = {
-  //          2      3      4      5      6      7      8      9      10     A
-  17: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  16: row(["stand","stand","stand","stand","stand","hit",  "hit",  "surrender","surrender","surrender"]),
-  15: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "surrender","hit"]),
-  14: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  13: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  12: row(["hit",  "hit",  "stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  11: row(["double","double","double","double","double","double","double","double","double","hit"]),
-  10: row(["double","double","double","double","double","double","double","double","hit",  "hit"]),
-  9:  row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  8:  row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
+const S17_hardTotals: Record<number, ActionMap> = {
+  //          2     3     4     5     6     7     8     9     10    A
+  17: row(["S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S"  ]),
+  16: row(["S",  "S",  "S",  "S",  "S",  "H",  "H",  "Rh", "Rh", "Rh" ]),
+  15: row(["S",  "S",  "S",  "S",  "S",  "H",  "H",  "H",  "Rh", "H"  ]),
+  14: row(["S",  "S",  "S",  "S",  "S",  "H",  "H",  "H",  "H",  "H"  ]),
+  13: row(["S",  "S",  "S",  "S",  "S",  "H",  "H",  "H",  "H",  "H"  ]),
+  12: row(["H",  "H",  "S",  "S",  "S",  "H",  "H",  "H",  "H",  "H"  ]),
+  11: row(["Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "H"  ]),
+  10: row(["Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "H",  "H"  ]),
+  9:  row(["H",  "Dh", "Dh", "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
+  8:  row(["H",  "H",  "H",  "H",  "H",  "H",  "H",  "H",  "H",  "H"  ]),
 };
 
-const soft_S17_DAS_SUR: Record<number, ActionMap> = {
-  //          2      3      4      5      6      7      8      9      10     A
-  13: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  14: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  15: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  16: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  17: row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  18: row(["stand","double","double","double","double","stand","stand","hit",  "hit",  "hit"]),
-  19: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  20: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+const S17_softTotals: Record<number, ActionMap> = {
+  //          2     3     4     5     6     7     8     9     10    A
+  20: row(["S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S"  ]),
+  19: row(["S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S"  ]),
+  18: row(["S",  "Ds", "Ds", "Ds", "Ds", "S",  "S",  "H",  "H",  "H"  ]),
+  17: row(["H",  "Dh", "Dh", "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
+  16: row(["H",  "H",  "Dh", "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
+  15: row(["H",  "H",  "Dh", "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
+  14: row(["H",  "H",  "H",  "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
+  13: row(["H",  "H",  "H",  "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
 };
 
-const pairs_S17_DAS_SUR: Record<Rank, ActionMap> = {
-  //          2      3      4      5      6      7      8      9      10     A
-  "A": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
-  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "6": row(["split","split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
-  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
-  "4": row(["hit",  "hit",  "hit",  "split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
-  "3": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "2": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+type PairRank = "A" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10";
+type PairsTable = Record<PairRank, ActionMap>;
+
+const S17_pairs: PairsTable = {
+  //          2     3     4     5     6     7     8     9     10    A
+  "A": row(["P",  "P",  "P",  "P",  "P",  "P",  "P",  "P",  "P",  "P"  ]),
+  "10":row(["S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S"  ]),
+  "9": row(["P",  "P",  "P",  "P",  "P",  "S",  "P",  "P",  "S",  "S"  ]),
+  "8": row(["P",  "P",  "P",  "P",  "P",  "P",  "P",  "P",  "P",  "Rp" ]),
+  "7": row(["P",  "P",  "P",  "P",  "P",  "P",  "H",  "H",  "H",  "H"  ]),
+  "6": row(["Ph", "P",  "P",  "P",  "P",  "H",  "H",  "H",  "H",  "H"  ]),
+  "5": row(["Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "H",  "H"  ]),
+  "4": row(["H",  "H",  "H",  "Ph", "Ph", "H",  "H",  "H",  "H",  "H"  ]),
+  "3": row(["Ph", "Ph", "P",  "P",  "P",  "P",  "H",  "H",  "H",  "H"  ]),
+  "2": row(["Ph", "Ph", "P",  "P",  "P",  "P",  "H",  "H",  "H",  "H"  ]),
 };
 
-// ─── H17 + DAS + Surrender ───────────────────────────────────────────────────
-// TODO: Edit these to reflect H17 strategy differences
+// ═══════════════════════════════════════════════════════════════════════════════
+// H17 STRATEGY TABLES (Dealer Hits on Soft 17)
+// ═══════════════════════════════════════════════════════════════════════════════
 
-const hard_H17_DAS_SUR: Record<number, ActionMap> = {
-  //          2      3      4      5      6      7      8      9      10     A
-  17: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","surrender"]), // vs A: surrender on H17
-  16: row(["stand","stand","stand","stand","stand","hit",  "hit",  "surrender","surrender","surrender"]),
-  15: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "surrender","surrender"]), // vs A: surrender on H17
-  14: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  13: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  12: row(["hit",  "hit",  "stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  11: row(["double","double","double","double","double","double","double","double","double","double"]), // vs A: double on H17
-  10: row(["double","double","double","double","double","double","double","double","hit",  "hit"]),
-  9:  row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  8:  row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
+const H17_hardTotals: Record<number, ActionMap> = {
+  //          2     3     4     5     6     7     8     9     10    A
+  17: row(["S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "Rs" ]),
+  16: row(["S",  "S",  "S",  "S",  "S",  "H",  "H",  "Rh", "Rh", "Rh" ]),
+  15: row(["S",  "S",  "S",  "S",  "S",  "H",  "H",  "H",  "Rh", "Rh" ]),
+  14: row(["S",  "S",  "S",  "S",  "S",  "H",  "H",  "H",  "H",  "H"  ]),
+  13: row(["S",  "S",  "S",  "S",  "S",  "H",  "H",  "H",  "H",  "H"  ]),
+  12: row(["H",  "H",  "S",  "S",  "S",  "H",  "H",  "H",  "H",  "H"  ]),
+  11: row(["Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh" ]),
+  10: row(["Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "H",  "H"  ]),
+  9:  row(["H",  "Dh", "Dh", "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
+  8:  row(["H",  "H",  "H",  "H",  "H",  "H",  "H",  "H",  "H",  "H"  ]),
 };
 
-const soft_H17_DAS_SUR: Record<number, ActionMap> = {
-  //          2      3      4      5      6      7      8      9      10     A
-  20: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  19: row(["stand","stand","stand","stand","double","stand","stand","stand","stand","stand"]), // vs 6: double on H17
-  18: row(["double","double","double","double","double","stand","stand","hit",  "hit",  "hit"]), // vs 2: double on H17
-  17: row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  16: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  15: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  14: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  13: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+const H17_softTotals: Record<number, ActionMap> = {
+  //          2     3     4     5     6     7     8     9     10    A
+  20: row(["S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S"  ]),
+  19: row(["S",  "S",  "S",  "S",  "Ds", "S",  "S",  "S",  "S",  "S"  ]),
+  18: row(["Ds", "Ds", "Ds", "Ds", "Ds", "S",  "S",  "H",  "H",  "H"  ]),
+  17: row(["H",  "Dh", "Dh", "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
+  16: row(["H",  "H",  "Dh", "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
+  15: row(["H",  "H",  "Dh", "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
+  14: row(["H",  "H",  "H",  "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
+  13: row(["H",  "H",  "H",  "Dh", "Dh", "H",  "H",  "H",  "H",  "H"  ]),
 };
 
-const pairs_H17_DAS_SUR: Record<Rank, ActionMap> = {
-  // Same as S17 for most cases - edit if H17 changes pair strategy
-  "A": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
-  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "6": row(["split","split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
-  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
-  "4": row(["hit",  "hit",  "hit",  "split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
-  "3": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "2": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+const H17_pairs: PairsTable = {
+  //          2     3     4     5     6     7     8     9     10    A
+  "A": row(["P",  "P",  "P",  "P",  "P",  "P",  "P",  "P",  "P",  "P"  ]),
+  "10":row(["S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S",  "S"  ]),
+  "9": row(["P",  "P",  "P",  "P",  "P",  "S",  "P",  "P",  "S",  "S"  ]),
+  "8": row(["P",  "P",  "P",  "P",  "P",  "P",  "P",  "P",  "P",  "Rp" ]),
+  "7": row(["P",  "P",  "P",  "P",  "P",  "P",  "H",  "H",  "H",  "H"  ]),
+  "6": row(["Ph", "P",  "P",  "P",  "P",  "H",  "H",  "H",  "H",  "H"  ]),
+  "5": row(["Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "Dh", "H",  "H"  ]),
+  "4": row(["H",  "H",  "H",  "Ph", "Ph", "H",  "H",  "H",  "H",  "H"  ]),
+  "3": row(["Ph", "Ph", "P",  "P",  "P",  "P",  "H",  "H",  "H",  "H"  ]),
+  "2": row(["Ph", "Ph", "P",  "P",  "P",  "P",  "H",  "H",  "H",  "H"  ]),
 };
 
-// ─── S17 + No DAS + Surrender ────────────────────────────────────────────────
-// TODO: Edit pairs table - without DAS, some splits become hits
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMPOSITE ACTION RESOLVER
+// ═══════════════════════════════════════════════════════════════════════════════
 
-const pairs_S17_NDAS_SUR: Record<Rank, ActionMap> = {
-  //          2      3      4      5      6      7      8      9      10     A
-  "A": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
-  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "6": row(["hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]), // 6 vs 2: hit without DAS
-  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
-  "4": row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]), // 4s: never split without DAS
-  "3": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "2": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]), // 2,3 vs 2,3: hit without DAS
-};
-
-// ─── H17 + No DAS + Surrender ────────────────────────────────────────────────
-// TODO: Combine H17 hard/soft with NDAS pairs
-
-const pairs_H17_NDAS_SUR: Record<Rank, ActionMap> = {
-  // Copy of NDAS pairs - edit if H17 changes anything
-  "A": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
-  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "6": row(["hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
-  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
-  "4": row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
-  "3": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "2": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-};
-
-// ─── No Surrender variants ───────────────────────────────────────────────────
-// For no-surrender tables, surrender actions become hits
-// These are handled dynamically in getRecommendation() by checking canSurrender
+/**
+ * Resolves a composite action to a concrete PlayerAction based on table rules.
+ */
+function resolveCompositeAction(
+  action: CompositeAction,
+  canDouble: boolean,
+  canSurrender: boolean,
+  canSplitDAS: boolean,
+): PlayerAction {
+  switch (action) {
+    case "H":  return "hit";
+    case "S":  return "stand";
+    case "Dh": return canDouble ? "double" : "hit";
+    case "Ds": return canDouble ? "double" : "stand";
+    case "P":  return "split";
+    case "Ph": return canSplitDAS ? "split" : "hit";
+    case "Rh": return canSurrender ? "surrender" : "hit";
+    case "Rs": return canSurrender ? "surrender" : "stand";
+    case "Rp": return canSurrender ? "surrender" : "split";
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // STRATEGY TABLE SELECTOR
 // ═══════════════════════════════════════════════════════════════════════════════
 
+interface InternalStrategyTable {
+  name: string;
+  hard: Record<number, ActionMap>;
+  soft: Record<number, ActionMap>;
+  pairs: PairsTable;
+}
+
+function getInternalStrategy(rules: TableRules): InternalStrategyTable {
+  if (rules.dealerHitsSoft17) {
+    return {
+      name: "Basic Strategy (H17)",
+      hard: H17_hardTotals,
+      soft: H17_softTotals,
+      pairs: H17_pairs,
+    };
+  }
+  return {
+    name: "Basic Strategy (S17)",
+    hard: S17_hardTotals,
+    soft: S17_softTotals,
+    pairs: S17_pairs,
+  };
+}
+
 /**
- * Returns the appropriate strategy table based on table rules.
- * 
- * Rule combinations that affect strategy:
- * - dealerHitsSoft17 (H17 vs S17): Changes some soft totals and hard 11 vs A
- * - doubleAfterSplit (DAS vs NDAS): Changes pair splitting decisions
- * - surrenderAllowed: Handled dynamically (surrender → hit when not allowed)
+ * Returns a resolved strategy table with concrete PlayerActions.
+ * DAS and Surrender rules are applied during resolution.
  */
 export function getStrategyForRules(rules: TableRules): StrategyTable {
-  const isH17 = rules.dealerHitsSoft17;
-  const isDAS = rules.doubleAfterSplit;
+  const internal = getInternalStrategy(rules);
+  const canSplitDAS = rules.doubleAfterSplit;
+  const canSurrender = rules.surrenderAllowed;
 
-  if (isH17 && isDAS) {
-    return {
-      name: "Basic Strategy (H17, DAS)",
-      hard: hard_H17_DAS_SUR,
-      soft: soft_H17_DAS_SUR,
-      pairs: pairs_H17_DAS_SUR,
-    };
+  // Build resolved tables
+  const resolvedHard: Record<number, Record<Rank, PlayerAction>> = {};
+  const resolvedSoft: Record<number, Record<Rank, PlayerAction>> = {};
+  const resolvedPairs: Record<Rank, Record<Rank, PlayerAction>> = {} as Record<Rank, Record<Rank, PlayerAction>>;
+
+  const ranks: Rank[] = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "A"];
+  const pairRanks: PairRank[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+
+  // Resolve hard totals
+  for (const total of Object.keys(internal.hard).map(Number)) {
+    resolvedHard[total] = {} as Record<Rank, PlayerAction>;
+    for (const rank of ranks) {
+      resolvedHard[total][rank] = resolveCompositeAction(internal.hard[total][rank], true, canSurrender, canSplitDAS);
+    }
   }
 
-  if (isH17 && !isDAS) {
-    return {
-      name: "Basic Strategy (H17, No DAS)",
-      hard: hard_H17_DAS_SUR,
-      soft: soft_H17_DAS_SUR,
-      pairs: pairs_H17_NDAS_SUR,
-    };
+  // Resolve soft totals
+  for (const total of Object.keys(internal.soft).map(Number)) {
+    resolvedSoft[total] = {} as Record<Rank, PlayerAction>;
+    for (const rank of ranks) {
+      resolvedSoft[total][rank] = resolveCompositeAction(internal.soft[total][rank], true, canSurrender, canSplitDAS);
+    }
   }
 
-  if (!isH17 && !isDAS) {
-    return {
-      name: "Basic Strategy (S17, No DAS)",
-      hard: hard_S17_DAS_SUR,
-      soft: soft_S17_DAS_SUR,
-      pairs: pairs_S17_NDAS_SUR,
-    };
+  // Resolve pairs (J/Q/K normalize to 10 at lookup time)
+  for (const pairRank of pairRanks) {
+    resolvedPairs[pairRank] = {} as Record<Rank, PlayerAction>;
+    for (const dealerRank of ranks) {
+      resolvedPairs[pairRank][dealerRank] = resolveCompositeAction(internal.pairs[pairRank][dealerRank], true, canSurrender, canSplitDAS);
+    }
   }
 
-  // Default: S17 + DAS (classic Vegas)
   return {
-    name: "Basic Strategy (S17, DAS)",
-    hard: hard_S17_DAS_SUR,
-    soft: soft_S17_DAS_SUR,
-    pairs: pairs_S17_DAS_SUR,
+    name: internal.name + (canSplitDAS ? ", DAS" : ", No DAS") + (canSurrender ? "" : ", No Surrender"),
+    hard: resolvedHard,
+    soft: resolvedSoft,
+    pairs: resolvedPairs,
   };
 }
 
 // ─── Strategy Lookup ──────────────────────────────────────────────────────────
 
+type StrategyAction = PlayerAction;
+
+/**
+ * Gets the recommended action for the current table state.
+ * Looks up the composite action from the appropriate S17/H17 table,
+ * then resolves it based on the hand state and table rules.
+ */
 export function getRecommendation(
   state: TableState,
-  strategy: StrategyTable,
-  _rules: TableRules,
+  _strategy: StrategyTable,  // Kept for API compatibility, but we use internal tables
+  rules: TableRules,
 ): StrategyAction | null {
+  const internal = getInternalStrategy(rules);
   const rawRank = state.dealerUpcard.rank;
   const dealerRank: Rank = (rawRank === "J" || rawRank === "Q" || rawRank === "K") ? "10" : rawRank;
+
+  let compositeAction: CompositeAction | null = null;
 
   // Pairs first (if split is allowed)
   if (state.isPair && state.canSplit) {
     const pairRank = state.playerHand[0].rank;
-    const pairRow = strategy.pairs[pairRank];
+    const normPairRank: Rank = (pairRank === "J" || pairRank === "Q" || pairRank === "K") ? "10" : pairRank;
+    const pairRow = internal.pairs[normPairRank];
     if (pairRow) {
-      const action = pairRow[dealerRank];
-      // If strategy says split but split isn't allowed, fall through to hard/soft
-      if (action === "split") return "split";
+      compositeAction = pairRow[dealerRank];
+      // If action would result in split, return it resolved
+      const resolved = resolveCompositeAction(compositeAction, state.canDouble, state.canSurrender, rules.doubleAfterSplit);
+      if (resolved === "split") return "split";
+      // Otherwise fall through to hard/soft totals (treat as non-pair)
+      compositeAction = null;
     }
   }
 
   // Soft totals
-  if (state.isSoft) {
-    const softRow = strategy.soft[state.handTotal];
+  if (state.isSoft && !compositeAction) {
+    const softRow = internal.soft[state.handTotal];
     if (softRow) {
-      const action = softRow[dealerRank];
-      // If action is double but can't double, hit instead
-      if (action === "double" && !state.canDouble) return "hit";
-      // If action is surrender but can't surrender, hit instead
-      if (action === "surrender" && !state.canSurrender) return "hit";
-      return action;
+      compositeAction = softRow[dealerRank];
     }
   }
 
   // Hard totals (clamp to table range)
-  const clampedTotal = Math.min(Math.max(state.handTotal, 8), 17);
-  const hardRow = strategy.hard[clampedTotal];
-  if (hardRow) {
-    const action = hardRow[dealerRank];
-    if (action === "double" && !state.canDouble) return "hit";
-    if (action === "surrender" && !state.canSurrender) return "hit";
-    return action;
+  if (!compositeAction) {
+    const clampedTotal = Math.min(Math.max(state.handTotal, 8), 17);
+    const hardRow = internal.hard[clampedTotal];
+    if (hardRow) {
+      compositeAction = hardRow[dealerRank];
+    }
   }
 
-  return null;
+  if (!compositeAction) return null;
+
+  // Resolve using actual hand state
+  return resolveCompositeAction(
+    compositeAction,
+    state.canDouble,
+    state.canSurrender,
+    rules.doubleAfterSplit,
+  );
 }
 
-// ─── Rule adjustments (legacy - now mostly handled by table selection) ────────
+// ─── Rule adjustments (legacy - kept for API compatibility) ──────────────────
 
 /**
- * Additional runtime adjustments if needed.
- * Most rule-based changes are now in the separate strategy tables.
+ * @deprecated Rule adjustments are now handled directly in getRecommendation.
  */
 export function adjustForRules(
   action: StrategyAction,
   _state: TableState,
   _rules: TableRules,
 ): StrategyAction {
-  // Strategy tables now handle most rule variations directly.
-  // This function can be used for edge cases not covered by the tables.
   return action;
 }
