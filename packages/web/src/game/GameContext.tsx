@@ -106,7 +106,8 @@ function buildCurrentTableStateForContext(state: GameState) {
     canSplit:
       isPair(playerCards) &&
       state.playerStack >= hand.betAmount &&
-      state.splitHands.length < rules.maxSplits,
+      (state.splitHands.length > 0 ? state.splitHands.length - 1 : 0) <
+        rules.maxSplits,
     canSurrender: playerCards.length === 2 && rules.surrenderAllowed,
     splitDepth: state.activeSplitIndex,
   };

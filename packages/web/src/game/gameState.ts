@@ -285,6 +285,52 @@ function handleDebugHand(
   };
 }
 
+// ─── Split Hand Advancement ───────────────────────────────────────────────────
+
+/**
+ * After a split hand is done (stood, busted, or doubled), either:
+ * - Move to the next split hand if more remain
+ * - Go to dealer turn if all split hands are complete
+ */
+function advanceToNextSplitOrDealer(
+  state: GameState,
+  completedHand: Hand,
+  feedback: DecisionFeedback,
+): GameState {
+  // Update the splitHands array with the completed hand's final state
+  const updatedSplitHands = state.splitHands.map((h, i) =>
+    i === state.activeSplitIndex ? completedHand : h,
+  );
+
+  const nextIndex = state.activeSplitIndex + 1;
+
+  if (nextIndex < state.splitHands.length) {
+    // More split hands to play
+    return {
+      ...state,
+      splitHands: updatedSplitHands,
+      currentHand: updatedSplitHands[nextIndex],
+      activeSplitIndex: nextIndex,
+      feedback,
+    };
+  }
+
+  // All split hands complete - go to dealer turn
+  // Set currentHand to the first non-busted hand for dealer resolution
+  // (or the last hand if all busted)
+  const firstNonBusted = updatedSplitHands.find((h) => h.outcome !== "bust");
+  const handForDealer =
+    firstNonBusted ?? updatedSplitHands[updatedSplitHands.length - 1];
+
+  return {
+    ...state,
+    splitHands: updatedSplitHands,
+    currentHand: handForDealer,
+    phase: "dealerTurn",
+    feedback,
+  };
+}
+
 // ─── Player Action ────────────────────────────────────────────────────────────
 
 function handlePlayerAction(
@@ -321,9 +367,14 @@ function handlePlayerAction(
   }
 
   if (action === "stand") {
+    const stoodHand: Hand = { ...updatedHand };
+    // If in a split, advance to next hand; otherwise go to dealer turn
+    if (state.splitHands.length > 0) {
+      return advanceToNextSplitOrDealer(state, stoodHand, feedback);
+    }
     return {
       ...state,
-      currentHand: updatedHand,
+      currentHand: stoodHand,
       phase: "dealerTurn",
       feedback,
     };
@@ -355,14 +406,18 @@ function handlePlayerAction(
     };
 
     if (eval_.isBust) {
-      const resolvedHand: Hand = {
+      const bustedHand: Hand = {
         ...handWithNewCard,
         outcome: "bust",
         payout: -hand.betAmount,
       };
+      // If in a split, advance to next hand; otherwise finish
+      if (s.splitHands.length > 0) {
+        return advanceToNextSplitOrDealer(s, bustedHand, feedback);
+      }
       return finishHand(
         s,
-        resolvedHand,
+        bustedHand,
         s.playerStack,
         hand.dealerFinalHand,
         feedback,
@@ -399,21 +454,36 @@ function handlePlayerAction(
     };
 
     if (eval_.isBust) {
-      const resolvedHand: Hand = {
+      const bustedHand: Hand = {
         ...handAfterDouble,
         outcome: "bust",
         payout: -newBet,
       };
+      // If in a split, advance to next hand; otherwise finish
+      if (s.splitHands.length > 0) {
+        return advanceToNextSplitOrDealer(
+          { ...s, playerStack: newStack },
+          bustedHand,
+          feedback,
+        );
+      }
       return finishHand(
         s,
-        resolvedHand,
+        bustedHand,
         newStack,
         hand.dealerFinalHand,
         feedback,
       );
     }
 
-    // After double, go to dealer turn
+    // After double, advance to next split hand or dealer turn
+    if (s.splitHands.length > 0) {
+      return advanceToNextSplitOrDealer(
+        { ...s, playerStack: newStack },
+        handAfterDouble,
+        feedback,
+      );
+    }
     return {
       ...s,
       playerStack: newStack,
@@ -456,6 +526,26 @@ function handlePlayerAction(
 
     const newStack = s.playerStack - hand.betAmount; // extra bet for second hand
 
+    // Handle re-split: insert new hands at current position
+    if (s.splitHands.length > 0) {
+      const newSplitHands = [
+        ...s.splitHands.slice(0, s.activeSplitIndex),
+        hand1,
+        hand2,
+        ...s.splitHands.slice(s.activeSplitIndex + 1),
+      ];
+      return {
+        ...s,
+        playerStack: newStack,
+        currentHand: hand1,
+        splitHands: newSplitHands,
+        activeSplitIndex: s.activeSplitIndex, // stay at same index (now pointing to hand1)
+        phase: "playerTurn",
+        feedback,
+      };
+    }
+
+    // First split
     return {
       ...s,
       playerStack: newStack,
@@ -487,10 +577,14 @@ function buildCurrentTableState(state: GameState, hand: Hand): TableState {
   const dealerUpcard = hand.dealerFinalHand[0];
   const canDouble =
     playerCards.length === 2 && state.playerStack >= hand.betAmount;
+  // Allow splits up to maxSplits times (maxSplits + 1 hands total)
+  // splitHands.length: 0=no split, 2=1 split, 3=2 splits, 4=3 splits
+  const splitCount =
+    state.splitHands.length > 0 ? state.splitHands.length - 1 : 0;
   const canSplit =
     isPair(playerCards) &&
     state.playerStack >= hand.betAmount &&
-    state.splitHands.length < rules.maxSplits;
+    splitCount < rules.maxSplits;
 
   return {
     playerHand: playerCards,
@@ -536,6 +630,12 @@ function handleDealerDraw(state: GameState): GameState {
   const newEval = evaluateHand(newDealerCards);
   const updatedHand: Hand = { ...hand, dealerFinalHand: newDealerCards };
 
+  // Update dealer cards in all split hands for display
+  const updatedSplitHands = s.splitHands.map((h) => ({
+    ...h,
+    dealerFinalHand: newDealerCards,
+  }));
+
   if (
     newEval.isBust ||
     !(
@@ -543,17 +643,22 @@ function handleDealerDraw(state: GameState): GameState {
       (newEval.isSoft && newEval.total === 17 && rules.dealerHitsSoft17)
     )
   ) {
-    return resolveHand(s, updatedHand, newDealerCards);
+    return resolveHand(
+      { ...s, splitHands: updatedSplitHands },
+      updatedHand,
+      newDealerCards,
+    );
   }
 
-  return { ...s, currentHand: updatedHand };
+  return { ...s, currentHand: updatedHand, splitHands: updatedSplitHands };
 }
 
-function resolveHand(
-  state: GameState,
-  hand: Hand,
-  dealerCards: Card[],
-): GameState {
+function resolveOneHand(hand: Hand, dealerCards: Card[]): Hand {
+  // If already resolved (bust), just update dealer cards
+  if (hand.outcome === "bust") {
+    return { ...hand, dealerFinalHand: dealerCards };
+  }
+
   const playerCards =
     hand.decisions.length > 0
       ? hand.decisions[hand.decisions.length - 1].tableState.playerHand
@@ -576,16 +681,54 @@ function resolveHand(
     payout = -hand.betAmount;
   }
 
-  const resolvedHand: Hand = {
+  return {
     ...hand,
     outcome,
     payout,
     dealerFinalHand: dealerCards,
   };
+}
+
+function resolveHand(
+  state: GameState,
+  _hand: Hand,
+  dealerCards: Card[],
+): GameState {
+  // If we have split hands, resolve all of them
+  if (state.splitHands.length > 0) {
+    const resolvedHands = state.splitHands.map((h) =>
+      resolveOneHand(h, dealerCards),
+    );
+    const totalPayout = resolvedHands.reduce((sum, h) => sum + h.payout, 0);
+    const totalBets = resolvedHands.reduce((sum, h) => sum + h.betAmount, 0);
+
+    const updatedSession: Session = {
+      ...state.session,
+      hands: [...state.session.hands, ...resolvedHands],
+    };
+
+    const needsShuffle = state.cardsDealt >= state.cutCard;
+
+    return {
+      ...state,
+      phase: needsShuffle ? "shoeEnd" : "resolution",
+      session: updatedSession,
+      // Keep first hand as currentHand for display, but all are in splitHands
+      currentHand: resolvedHands[0],
+      splitHands: resolvedHands,
+      playerStack: state.playerStack + totalBets + totalPayout,
+      feedback: state.feedback ?? null,
+    };
+  }
+
+  // Single hand resolution (no split)
+  const hand = state.currentHand!;
+  const resolvedHand = resolveOneHand(hand, dealerCards);
+
   return finishHand(
     state,
     resolvedHand,
-    state.playerStack + hand.betAmount + payout,
+    state.playerStack + hand.betAmount + resolvedHand.payout,
     dealerCards,
     state.feedback,
   );
@@ -616,20 +759,7 @@ function finishHand(
 }
 
 function handleNextHand(state: GameState): GameState {
-  if (
-    state.splitHands.length > 0 &&
-    state.activeSplitIndex + 1 < state.splitHands.length
-  ) {
-    const nextIndex = state.activeSplitIndex + 1;
-    return {
-      ...state,
-      phase: "playerTurn",
-      currentHand: state.splitHands[nextIndex],
-      activeSplitIndex: nextIndex,
-      feedback: null,
-    };
-  }
-
+  // After resolution (including split resolution), go back to betting
   return {
     ...state,
     phase: "betting",

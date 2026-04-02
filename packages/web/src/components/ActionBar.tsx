@@ -20,13 +20,15 @@ export function ActionBar() {
 
   const canDouble =
     playerCards.length === 2 && playerStack >= currentHand.betAmount;
+  // splitCount = number of splits performed (2 hands = 1 split, 3 hands = 2 splits, etc.)
+  const splitCount = splitHands.length > 0 ? splitHands.length - 1 : 0;
   const canSplit =
     playerCards.length === 2 &&
     playerCards[0] &&
     playerCards[1] &&
     cardValue(playerCards[0].rank) === cardValue(playerCards[1].rank) &&
     playerStack >= currentHand.betAmount &&
-    splitHands.length < rules.maxSplits;
+    splitCount < rules.maxSplits;
   const canSurrender = playerCards.length === 2 && rules.surrenderAllowed;
 
   const actions: {
