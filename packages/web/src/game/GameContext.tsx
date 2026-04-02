@@ -1,4 +1,10 @@
-import { createContext, useContext, useReducer, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  ReactNode,
+} from "react";
 import {
   DEFAULT_TABLE_RULES,
   PlayerAction,
@@ -24,7 +30,20 @@ interface GameContextValue {
 const GameContext = createContext<GameContextValue | null>(null);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(gameReducer, initialGameState(DEFAULT_TABLE_RULES, 1000));
+  const [state, dispatch] = useReducer(
+    gameReducer,
+    initialGameState(DEFAULT_TABLE_RULES, 1000),
+  );
+
+  // Auto-run dealer turn
+  useEffect(() => {
+    if (state.phase === "dealerTurn") {
+      const timer = setTimeout(() => {
+        dispatch({ type: "DEALER_DRAW" });
+      }, 500); // 500ms delay for visual effect
+      return () => clearTimeout(timer);
+    }
+  }, [state.phase, state.currentHand?.dealerFinalHand.length]);
 
   function dispatchPlayerAction(action: PlayerAction) {
     // Compute recommendation before dispatching so it's available for feedback
@@ -32,8 +51,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (state.currentHand) {
       const ts = buildCurrentTableStateForContext(state);
       if (ts) {
-        const raw = getRecommendation(ts, BASIC_STRATEGY, state.session.tableRules);
-        recommended = raw ? adjustForRules(raw, ts, state.session.tableRules) : null;
+        const raw = getRecommendation(
+          ts,
+          BASIC_STRATEGY,
+          state.session.tableRules,
+        );
+        recommended = raw
+          ? adjustForRules(raw, ts, state.session.tableRules)
+          : null;
       }
     }
     dispatch({ type: "PLAYER_ACTION", action, recommended });
@@ -59,9 +84,10 @@ function buildCurrentTableStateForContext(state: GameState) {
   const rules = state.session.tableRules;
   const totalCards = rules.decks * 52;
 
-  const playerCards = hand.decisions.length === 0
-    ? hand.dealerFinalHand.slice(2)
-    : hand.decisions[hand.decisions.length - 1].tableState.playerHand;
+  const playerCards =
+    hand.decisions.length === 0
+      ? hand.playerInitialHand
+      : hand.decisions[hand.decisions.length - 1].tableState.playerHand;
 
   const eval_ = evaluateHand(playerCards);
 
@@ -77,7 +103,10 @@ function buildCurrentTableStateForContext(state: GameState) {
     isSoft: eval_.isSoft,
     isPair: isPair(playerCards),
     canDouble: playerCards.length === 2 && state.playerStack >= hand.betAmount,
-    canSplit: isPair(playerCards) && state.playerStack >= hand.betAmount && state.splitHands.length < rules.maxSplits,
+    canSplit:
+      isPair(playerCards) &&
+      state.playerStack >= hand.betAmount &&
+      state.splitHands.length < rules.maxSplits,
     canSurrender: playerCards.length === 2 && rules.surrenderAllowed,
     splitDepth: state.activeSplitIndex,
   };

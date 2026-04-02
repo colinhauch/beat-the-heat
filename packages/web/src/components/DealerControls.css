@@ -80,3 +80,18 @@
   color: var(--text-dim);
   opacity: 0.6;
 }
+
+/* Dealer drawing message */
+.dealer-msg {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-mid);
+  opacity: 0.8;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
