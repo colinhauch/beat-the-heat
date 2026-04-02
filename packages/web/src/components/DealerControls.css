@@ -1,0 +1,82 @@
+/* ─── Dealer Controls ────────────────────────────────────────────────── */
+.dealer-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ─── Buttons ────────────────────────────────────────────────────────── */
+.dealer-btn {
+  padding: 10px 36px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: filter 0.1s, transform 0.08s;
+}
+
+.dealer-btn:active {
+  transform: translateY(1px);
+  filter: brightness(0.9);
+}
+
+/* Draw — muted steel */
+.dealer-btn--draw {
+  background: #1a2a1a;
+  border-color: #3a5a3a;
+  color: #7aab7a;
+  font-weight: 500;
+  font-size: 0.78rem;
+}
+
+.dealer-btn--draw:hover {
+  background: #1e321e;
+  border-color: #4a7a4a;
+}
+
+/* Next Hand — gold, primary CTA */
+.dealer-btn--next {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--felt-deep);
+  background: linear-gradient(180deg,
+    var(--gold-bright) 0%,
+    var(--gold-mid) 50%,
+    var(--gold-dim) 100%
+  );
+  border-color: var(--gold-bright);
+  box-shadow: 0 3px 10px rgba(201,168,76,0.3);
+  padding: 11px 44px;
+}
+
+.dealer-btn--next:hover {
+  filter: brightness(1.08);
+}
+
+/* Shuffle — secondary */
+.dealer-btn--shuffle {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: #1a1a1a;
+  border-color: var(--gold-dim);
+  color: var(--gold-mid);
+}
+
+.dealer-btn--shuffle:hover {
+  background: #222;
+  border-color: var(--gold-mid);
+}
+
+/* Shoe end message */
+.shoe-end-msg {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0.6;
+}

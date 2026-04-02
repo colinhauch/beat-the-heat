@@ -1,0 +1,161 @@
+/* ─── Table Container ────────────────────────────────────────────────── */
+.table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ─── Zones ──────────────────────────────────────────────────────────── */
+.zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  justify-content: center;
+}
+
+.zone--dealer {
+  padding-top: 8px;
+}
+
+.zone--player {
+  padding-bottom: 4px;
+}
+
+.zone-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+/* ─── Hand Rows ──────────────────────────────────────────────────────── */
+.hand-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  min-height: var(--card-h);
+}
+
+.hand-row--empty {
+  align-items: center;
+  justify-content: center;
+  opacity: 0.12;
+}
+
+.empty-zone-text {
+  font-size: 2.5rem;
+  color: var(--text-cream);
+  letter-spacing: 0.1em;
+}
+
+/* ─── Hand Total ─────────────────────────────────────────────────────── */
+.hand-total {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text-cream);
+  letter-spacing: 0.05em;
+  min-height: 1.4em;
+}
+
+.total--bust {
+  color: var(--wrong-glow);
+  font-weight: 700;
+}
+
+.total--blackjack {
+  color: var(--gold-bright);
+  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+}
+
+/* ─── Center Rail ────────────────────────────────────────────────────── */
+.table-center-rail {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 8px;
+  flex-shrink: 0;
+  margin: 4px 0;
+}
+
+.rail-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--gold-dim) 30%,
+    var(--gold-mid) 60%,
+    var(--gold-dim) 80%,
+    transparent 100%
+  );
+  opacity: 0.4;
+}
+
+.rail-badge {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-mid);
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+/* ─── Controls ───────────────────────────────────────────────────────── */
+.controls-zone {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0 4px;
+  min-height: 80px;
+}
+
+/* ─── Bet Indicator ──────────────────────────────────────────────────── */
+.bet-indicator {
+  position: absolute;
+  top: 50%;
+  right: -16px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid var(--gold-dim);
+  border-radius: 4px;
+}
+
+.bet-label,
+.stack-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+
+.bet-amount,
+.stack-amount {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--gold-mid);
+  line-height: 1.1;
+}
+
+.stack-label {
+  margin-top: 4px;
+}

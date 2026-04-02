@@ -1,0 +1,155 @@
+/* ─── Betting Panel ───────────────────────────────────────────────────── */
+.betting-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ─── Chip Buttons ────────────────────────────────────────────────────── */
+.bet-quick-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.chip-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px solid var(--gold-dim);
+  background: radial-gradient(circle at 35% 35%,
+    #4a3400 0%,
+    #2a1e00 60%,
+    #1a1200 100%
+  );
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: border-color 0.1s, transform 0.08s;
+  box-shadow:
+    0 3px 8px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+/* Dashed inner ring like real casino chips */
+.chip-btn::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(201,168,76,0.35);
+}
+
+.chip-btn:hover:not(:disabled) {
+  border-color: var(--gold-mid);
+  transform: translateY(-1px);
+}
+
+.chip-btn--active {
+  border-color: var(--gold-bright);
+  box-shadow:
+    0 3px 12px rgba(201,168,76,0.4),
+    0 0 0 2px rgba(201,168,76,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.chip-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.chip-value {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--gold-mid);
+  letter-spacing: 0.02em;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Custom Input ────────────────────────────────────────────────────── */
+.bet-custom-input {
+  width: 72px;
+  height: 36px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  color: var(--gold-mid);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 0 6px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.bet-custom-input::placeholder {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.bet-custom-input:focus {
+  border-color: var(--gold-mid);
+}
+
+.bet-custom-input::-webkit-inner-spin-button,
+.bet-custom-input::-webkit-outer-spin-button {
+  opacity: 0.4;
+}
+
+/* ─── Summary ────────────────────────────────────────────────────────── */
+.bet-summary {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+
+.bet-highlight {
+  color: var(--gold-mid);
+  font-weight: 500;
+}
+
+.stack-highlight {
+  color: var(--text-cream);
+}
+
+/* ─── Deal Button ────────────────────────────────────────────────────── */
+.deal-btn {
+  padding: 10px 40px;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--felt-deep);
+  background: linear-gradient(180deg,
+    var(--gold-bright) 0%,
+    var(--gold-mid) 50%,
+    var(--gold-dim) 100%
+  );
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: filter 0.1s, transform 0.08s;
+  box-shadow:
+    0 3px 10px rgba(201,168,76,0.35),
+    0 1px 0 rgba(255,255,255,0.3) inset;
+}
+
+.deal-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.deal-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  filter: brightness(0.9);
+}
+
+.deal-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

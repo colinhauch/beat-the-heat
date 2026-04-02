@@ -1,0 +1,165 @@
+/* ─── Feedback Panel ─────────────────────────────────────────────────── */
+.feedback-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px 0;
+  gap: 0;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────── */
+.fp-header {
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fp-title {
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-mid);
+}
+
+/* ─── Sections ───────────────────────────────────────────────────────── */
+.fp-section {
+  padding: 12px 16px;
+}
+
+.fp-section--history {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fp-section-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  opacity: 0.6;
+}
+
+.fp-empty {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  padding: 4px 0;
+}
+
+/* ─── Decision Block ─────────────────────────────────────────────────── */
+.fp-decision {
+  padding: 10px 12px;
+  border-radius: 3px;
+  border-left: 3px solid transparent;
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fp-decision--correct {
+  border-left-color: var(--correct-glow);
+  background: rgba(46,125,50,0.1);
+}
+
+.fp-decision--wrong {
+  border-left-color: var(--wrong-glow);
+  background: rgba(197,57,41,0.1);
+}
+
+.fp-decision--neutral {
+  border-left-color: var(--gold-dim);
+}
+
+.fp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.fp-key {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.fp-value {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-cream);
+  letter-spacing: 0.04em;
+}
+
+.fp-verdict {
+  margin-top: 4px;
+  text-align: right;
+}
+
+.verdict {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.verdict--correct { color: var(--correct-glow); }
+.verdict--wrong   { color: var(--wrong-glow); }
+.verdict--neutral { color: var(--text-dim); }
+
+/* ─── Outcome ────────────────────────────────────────────────────────── */
+.fp-outcome-area {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fp-outcome {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.outcome--win       { color: var(--correct-glow); }
+.outcome--blackjack { color: var(--gold-bright); }
+.outcome--push      { color: var(--text-cream); }
+.outcome--lose      { color: var(--wrong-glow); }
+.outcome--bust      { color: var(--wrong-glow); }
+.outcome--surrender { color: var(--text-dim); }
+
+.fp-payout {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+
+/* ─── History ────────────────────────────────────────────────────────── */
+.fp-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+
+.fp-history-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  background: rgba(0,0,0,0.15);
+}
+
+.fp-history-row--latest {
+  background: rgba(201,168,76,0.07);
+  border: 1px solid rgba(201,168,76,0.1);
+}

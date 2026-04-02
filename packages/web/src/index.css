@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
+
+/* ─── Custom Properties ─────────────────────────────────────────────── */
+:root {
+  /* Felt & Table */
+  --felt-deep:    #0a2417;
+  --felt-base:    #0f3322;
+  --felt-mid:     #1a472a;
+  --felt-light:   #1f5233;
+  --felt-rail:    #3a1a0a;
+
+  /* Gold */
+  --gold-dim:     #7a6030;
+  --gold-mid:     #c9a84c;
+  --gold-bright:  #e8c96a;
+  --gold-pale:    #f0dfa0;
+
+  /* Card */
+  --card-face:    #faf7f0;
+  --card-back:    #1a1a4a;
+  --card-shadow:  rgba(0,0,0,0.55);
+  --card-border:  #e8dfc8;
+
+  /* Suits */
+  --red:          #c0272d;
+  --red-bright:   #e03030;
+  --black-suit:   #1a1a1a;
+
+  /* Feedback */
+  --correct:      #2e7d32;
+  --correct-glow: #4caf50;
+  --wrong:        #7b1a1a;
+  --wrong-glow:   #e53935;
+  --neutral:      #3a3a2a;
+
+  /* Text */
+  --text-cream:   #f0ead8;
+  --text-gold:    #c9a84c;
+  --text-dim:     #8a7a5a;
+  --text-muted:   #5a5040;
+
+  /* Rail / Wood */
+  --rail-dark:    #2a0e04;
+  --rail-mid:     #4a1e08;
+  --rail-light:   #7a3515;
+
+  /* Spacing */
+  --card-w:       80px;
+  --card-h:       112px;
+  --card-radius:  8px;
+
+  /* Typography */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-mono:    'DM Mono', 'Courier New', monospace;
+  --font-body:    'Cormorant Garamond', Georgia, serif;
+}
+
+/* ─── Reset ──────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--felt-deep);
+  color: var(--text-cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Felt Texture ───────────────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.012) 2px,
+      rgba(255,255,255,0.012) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255,255,255,0.008) 2px,
+      rgba(255,255,255,0.008) 4px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--felt-deep); }
+::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
+
+/* ─── Gold Ornament Lines ────────────────────────────────────────────── */
+.ornament-line {
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--gold-dim) 20%,
+    var(--gold-mid) 50%,
+    var(--gold-dim) 80%,
+    transparent 100%
+  );
+  opacity: 0.6;
+}
+
+/* ─── Utility ────────────────────────────────────────────────────────── */
+.mono { font-family: var(--font-mono); }
+.serif { font-family: var(--font-display); }

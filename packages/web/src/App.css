@@ -1,0 +1,92 @@
+/* ─── App Shell ──────────────────────────────────────────────────────── */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Header ─────────────────────────────────────────────────────────── */
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 24px;
+  background: linear-gradient(
+    180deg,
+    var(--rail-dark) 0%,
+    var(--rail-mid) 60%,
+    var(--rail-dark) 100%
+  );
+  border-bottom: 2px solid var(--gold-dim);
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.app-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--gold-mid);
+  text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+  white-space: nowrap;
+}
+
+.header-ornament {
+  color: var(--gold-dim);
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.stats-slot {
+  margin-left: auto;
+}
+
+/* ─── Body ───────────────────────────────────────────────────────────── */
+.app-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.table-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 28px 16px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ─── Feedback Rail ──────────────────────────────────────────────────── */
+.feedback-rail {
+  width: 280px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--gold-dim);
+  background: linear-gradient(
+    180deg,
+    rgba(10, 18, 10, 0.9) 0%,
+    rgba(6, 16, 6, 0.95) 100%
+  );
+  overflow-y: auto;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────── */
+.app-footer {
+  padding: 6px 24px;
+  border-top: 1px solid var(--gold-dim);
+  background: var(--rail-dark);
+  flex-shrink: 0;
+}
+
+.footer-text {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
