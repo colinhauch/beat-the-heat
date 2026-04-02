@@ -3,7 +3,21 @@ import { Card, Rank, Suit, TableRules } from "./types";
 // ─── Deck ─────────────────────────────────────────────────────────────────────
 
 const SUITS: Suit[] = ["♠", "♥", "♦", "♣"];
-const RANKS: Rank[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+const RANKS: Rank[] = [
+  "A",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "J",
+  "Q",
+  "K",
+];
 
 export function buildShoe(decks: number): Card[] {
   const shoe: Card[] = [];

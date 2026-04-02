@@ -1,11 +1,12 @@
 import { useGame } from '../game/GameContext'
 import { sessionStats } from '../game/analytics'
-import { BASIC_STRATEGY } from '@beat-the-heat/shared'
+import { getStrategyForRules } from '@beat-the-heat/shared'
 import './StatsHUD.css'
 
 export function StatsHUD() {
   const { state } = useGame()
-  const stats = sessionStats(state.session, BASIC_STRATEGY)
+  const strategy = getStrategyForRules(state.session.tableRules)
+  const stats = sessionStats(state.session, strategy)
 
   const accuracyPct = stats.totalDecisions > 0
     ? Math.round(stats.accuracy * 100)

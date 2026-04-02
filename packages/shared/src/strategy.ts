@@ -1,11 +1,13 @@
 import { Rank, StrategyAction, StrategyTable, TableState, TableRules } from "./types";
 
-// ─── Basic Strategy Table (Classic Vegas, 6 decks, S17, DAS) ─────────────────
+// ─── Strategy Table Builder ──────────────────────────────────────────────────
 //
-// Source: standard basic strategy charts
-// Rows = player total or pair rank
-// Cols = dealer upcard (2–10, A)
-// Actions: H=hit, S=stand, D=double, P=split, R=surrender (else hit)
+// We have multiple strategy tables based on rule variations:
+// - S17 vs H17 (dealer stands/hits on soft 17)
+// - DAS vs No-DAS (double after split allowed)
+// - Surrender vs No-Surrender
+//
+// Key: {S17|H17}_{DAS|NDAS}_{SUR|NSUR}
 
 type ActionMap = Record<Rank, StrategyAction>;
 
@@ -16,8 +18,13 @@ function row(vals: [StrategyAction, StrategyAction, StrategyAction, StrategyActi
   return map;
 }
 
-// Hard totals (8 and below always hit; 17+ always stand)
-const hard: Record<number, ActionMap> = {
+// ═══════════════════════════════════════════════════════════════════════════════
+// STRATEGY TABLES - Edit these to change the correct play for each scenario
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── S17 + DAS + Surrender (Default Vegas) ───────────────────────────────────
+
+const hard_S17_DAS_SUR: Record<number, ActionMap> = {
   //          2      3      4      5      6      7      8      9      10     A
   8:  row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
   9:  row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
@@ -31,21 +38,19 @@ const hard: Record<number, ActionMap> = {
   17: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
 };
 
-// Soft totals (A+x, total shown includes ace as 11)
-const soft: Record<number, ActionMap> = {
+const soft_S17_DAS_SUR: Record<number, ActionMap> = {
   //          2      3      4      5      6      7      8      9      10     A
-  13: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),  // A+2
-  14: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),  // A+3
-  15: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),  // A+4
-  16: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),  // A+5
-  17: row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),  // A+6
-  18: row(["stand","double","double","double","double","stand","stand","hit",  "hit",  "hit"]),  // A+7
-  19: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),    // A+8
-  20: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),    // A+9
+  13: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  14: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  15: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  16: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  17: row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  18: row(["stand","double","double","double","double","stand","stand","hit",  "hit",  "hit"]),
+  19: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  20: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
 };
 
-// Pairs (rank of each card in the pair)
-const pairs: Record<Rank, ActionMap> = {
+const pairs_S17_DAS_SUR: Record<Rank, ActionMap> = {
   //          2      3      4      5      6      7      8      9      10     A
   "A": row(["split","split","split","split","split","split","split","split","split","split"]),
   "2": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
@@ -62,11 +67,154 @@ const pairs: Record<Rank, ActionMap> = {
   "K": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
 };
 
+// ─── H17 + DAS + Surrender ───────────────────────────────────────────────────
+// TODO: Edit these to reflect H17 strategy differences
+
+const hard_H17_DAS_SUR: Record<number, ActionMap> = {
+  //          2      3      4      5      6      7      8      9      10     A
+  8:  row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
+  9:  row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  10: row(["double","double","double","double","double","double","double","double","hit",  "hit"]),
+  11: row(["double","double","double","double","double","double","double","double","double","double"]), // vs A: double on H17
+  12: row(["hit",  "hit",  "stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
+  13: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
+  14: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
+  15: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "surrender","surrender"]), // vs A: surrender on H17
+  16: row(["stand","stand","stand","stand","stand","hit",  "hit",  "surrender","surrender","surrender"]),
+  17: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","surrender"]), // vs A: surrender on H17
+};
+
+const soft_H17_DAS_SUR: Record<number, ActionMap> = {
+  //          2      3      4      5      6      7      8      9      10     A
+  13: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  14: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  15: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  16: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  17: row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  18: row(["double","double","double","double","double","stand","stand","hit",  "hit",  "hit"]), // vs 2: double on H17
+  19: row(["stand","stand","stand","stand","double","stand","stand","stand","stand","stand"]), // vs 6: double on H17
+  20: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+};
+
+const pairs_H17_DAS_SUR: Record<Rank, ActionMap> = {
+  // Same as S17 for most cases - edit if H17 changes pair strategy
+  "A": row(["split","split","split","split","split","split","split","split","split","split"]),
+  "2": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "3": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "4": row(["hit",  "hit",  "hit",  "split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
+  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
+  "6": row(["split","split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
+  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
+  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
+  "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "J": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "Q": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "K": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+};
+
+// ─── S17 + No DAS + Surrender ────────────────────────────────────────────────
+// TODO: Edit pairs table - without DAS, some splits become hits
+
+const pairs_S17_NDAS_SUR: Record<Rank, ActionMap> = {
+  //          2      3      4      5      6      7      8      9      10     A
+  "A": row(["split","split","split","split","split","split","split","split","split","split"]),
+  "2": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]), // 2,3 vs 2,3: hit without DAS
+  "3": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "4": row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]), // 4s: never split without DAS
+  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
+  "6": row(["hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]), // 6 vs 2: hit without DAS
+  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
+  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
+  "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "J": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "Q": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "K": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+};
+
+// ─── H17 + No DAS + Surrender ────────────────────────────────────────────────
+// TODO: Combine H17 hard/soft with NDAS pairs
+
+const pairs_H17_NDAS_SUR: Record<Rank, ActionMap> = {
+  // Copy of NDAS pairs - edit if H17 changes anything
+  "A": row(["split","split","split","split","split","split","split","split","split","split"]),
+  "2": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "3": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "4": row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
+  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
+  "6": row(["hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
+  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
+  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
+  "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "J": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "Q": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "K": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+};
+
+// ─── No Surrender variants ───────────────────────────────────────────────────
+// For no-surrender tables, surrender actions become hits
+// These are handled dynamically in getRecommendation() by checking canSurrender
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// STRATEGY TABLE SELECTOR
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Returns the appropriate strategy table based on table rules.
+ * 
+ * Rule combinations that affect strategy:
+ * - dealerHitsSoft17 (H17 vs S17): Changes some soft totals and hard 11 vs A
+ * - doubleAfterSplit (DAS vs NDAS): Changes pair splitting decisions
+ * - surrenderAllowed: Handled dynamically (surrender → hit when not allowed)
+ */
+export function getStrategyForRules(rules: TableRules): StrategyTable {
+  const isH17 = rules.dealerHitsSoft17;
+  const isDAS = rules.doubleAfterSplit;
+
+  if (isH17 && isDAS) {
+    return {
+      name: "Basic Strategy (H17, DAS)",
+      hard: hard_H17_DAS_SUR,
+      soft: soft_H17_DAS_SUR,
+      pairs: pairs_H17_DAS_SUR,
+    };
+  }
+
+  if (isH17 && !isDAS) {
+    return {
+      name: "Basic Strategy (H17, No DAS)",
+      hard: hard_H17_DAS_SUR,
+      soft: soft_H17_DAS_SUR,
+      pairs: pairs_H17_NDAS_SUR,
+    };
+  }
+
+  if (!isH17 && !isDAS) {
+    return {
+      name: "Basic Strategy (S17, No DAS)",
+      hard: hard_S17_DAS_SUR,
+      soft: soft_S17_DAS_SUR,
+      pairs: pairs_S17_NDAS_SUR,
+    };
+  }
+
+  // Default: S17 + DAS (classic Vegas)
+  return {
+    name: "Basic Strategy (S17, DAS)",
+    hard: hard_S17_DAS_SUR,
+    soft: soft_S17_DAS_SUR,
+    pairs: pairs_S17_DAS_SUR,
+  };
+}
+
+// Keep BASIC_STRATEGY for backwards compatibility
 export const BASIC_STRATEGY: StrategyTable = {
   name: "Basic Strategy (6-deck, S17, DAS)",
-  hard,
-  soft,
-  pairs,
+  hard: hard_S17_DAS_SUR,
+  soft: soft_S17_DAS_SUR,
+  pairs: pairs_S17_DAS_SUR,
 };
 
 // ─── Strategy Lookup ──────────────────────────────────────────────────────────
@@ -115,30 +263,18 @@ export function getRecommendation(
   return null;
 }
 
-// ─── Rule adjustments ─────────────────────────────────────────────────────────
+// ─── Rule adjustments (legacy - now mostly handled by table selection) ────────
 
 /**
- * Adjusts a basic strategy recommendation based on table rules.
- * H17 tables require a few tweaks (e.g. soft 18 vs A becomes hit).
+ * Additional runtime adjustments if needed.
+ * Most rule-based changes are now in the separate strategy tables.
  */
 export function adjustForRules(
   action: StrategyAction,
-  state: TableState,
-  rules: TableRules,
+  _state: TableState,
+  _rules: TableRules,
 ): StrategyAction {
-  const dealerRank = state.dealerUpcard.rank;
-
-  // H17 adjustments
-  if (rules.dealerHitsSoft17) {
-    // Soft 18 vs A: stand → hit on H17 tables
-    if (state.isSoft && state.handTotal === 18 && dealerRank === "A") {
-      return "hit";
-    }
-    // Soft 19 vs 6: stand → double on H17 tables (if allowed)
-    if (state.isSoft && state.handTotal === 19 && dealerRank === "6" && state.canDouble) {
-      return "double";
-    }
-  }
-
+  // Strategy tables now handle most rule variations directly.
+  // This function can be used for edge cases not covered by the tables.
   return action;
 }

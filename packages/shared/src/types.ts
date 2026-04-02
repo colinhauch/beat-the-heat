@@ -29,7 +29,7 @@ export const DEFAULT_TABLE_RULES: TableRules = {
   surrenderAllowed: true,
   blackjackPayout: "3:2",
   cutCardPenetration: 0.75,
-  maxSplits: 3,
+  maxSplits: 3,                   // allows up to 4 hands total (original + 3 splits), doing more kind of breaks it.
 };
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
@@ -74,7 +74,8 @@ export interface Hand {
   betAmount: number;
   payout: number;               // net chip change (positive = win, negative = loss)
   isBlackjack: boolean;
-  dealerFinalHand: Card[];
+  playerInitialHand: Card[];    // player's starting 2 cards
+  dealerFinalHand: Card[];      // dealer's cards (upcard, hole, + any draws)
 }
 
 // ─── Session ─────────────────────────────────────────────────────────────────

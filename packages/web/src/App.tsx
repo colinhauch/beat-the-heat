@@ -1,8 +1,11 @@
-import { GameProvider } from './game/GameContext'
-import { Table } from './components/Table'
-import { StatsHUD } from './components/StatsHUD'
-import { FeedbackPanel } from './components/FeedbackPanel'
-import './App.css'
+import { GameProvider } from "./game/GameContext";
+import { Table } from "./components/Table";
+import { StatsHUD } from "./components/StatsHUD";
+import { FeedbackPanel } from "./components/FeedbackPanel";
+import { SettingsPanel } from "./components/SettingsPanel";
+import { DebugPanel } from "./components/DebugPanel";
+import { RulesFooter } from "./components/RulesFooter";
+import "./App.css";
 
 export default function App() {
   return (
@@ -27,14 +30,14 @@ export default function App() {
           </div>
           <aside className="feedback-rail">
             <FeedbackPanel />
+            <SettingsPanel />
+            <DebugPanel />
           </aside>
         </main>
 
         {/* Footer Rail */}
-        <footer className="app-footer">
-          <span className="footer-text mono">Classic Vegas Strip · 6 Decks · S17 · DAS</span>
-        </footer>
+        <RulesFooter />
       </div>
     </GameProvider>
-  )
+  );
 }
