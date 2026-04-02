@@ -1,0 +1,11 @@
+{
+  "name": "beat-the-heat",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter shared build && pnpm --filter web build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint"
+  }
+}
