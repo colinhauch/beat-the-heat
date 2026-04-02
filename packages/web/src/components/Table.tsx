@@ -10,12 +10,12 @@ import "./Table.css";
 function getPlayerCards(state: ReturnType<typeof useGame>["state"]): Card[] {
   const hand = state.currentHand;
   if (!hand) return [];
-  if (hand.decisions.length === 0) return hand.playerInitialHand;
+  if (hand.decisions.length === 0) return hand.playerCards;
   return hand.decisions[hand.decisions.length - 1].tableState.playerHand;
 }
 
 function getHandCards(hand: Hand): Card[] {
-  if (hand.decisions.length === 0) return hand.playerInitialHand;
+  if (hand.decisions.length === 0) return hand.playerCards;
   return hand.decisions[hand.decisions.length - 1].tableState.playerHand;
 }
 
@@ -24,8 +24,8 @@ export function Table() {
   const { phase, currentHand, splitHands, activeSplitIndex } = state;
 
   const playerCards = getPlayerCards(state);
-  const dealerCards = currentHand?.dealerFinalHand.slice(0, 2) ?? [];
-  const dealerExtraCards = currentHand?.dealerFinalHand.slice(2) ?? [];
+  const dealerCards = currentHand?.dealerCards.slice(0, 2) ?? [];
+  const dealerExtraCards = currentHand?.dealerCards.slice(2) ?? [];
 
   // During player turn, hole card is face down
   const showHoleCard = phase !== "playerTurn";

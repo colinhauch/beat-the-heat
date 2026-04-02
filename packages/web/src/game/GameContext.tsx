@@ -43,7 +43,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       }, 500); // 500ms delay for visual effect
       return () => clearTimeout(timer);
     }
-  }, [state.phase, state.currentHand?.dealerFinalHand.length]);
+  }, [state.phase, state.currentHand?.dealerCards.length]);
 
   function dispatchPlayerAction(action: PlayerAction) {
     // Compute recommendation before dispatching so it's available for feedback
@@ -85,17 +85,16 @@ function buildCurrentTableStateForContext(state: GameState) {
   const rules = state.session.tableRules;
   const totalCards = rules.decks * 52;
 
-  const playerCards =
-    hand.decisions.length === 0
-      ? hand.playerInitialHand
-      : hand.decisions[hand.decisions.length - 1].tableState.playerHand;
+  const playerCards = hand.decisions.length === 0
+    ? hand.playerCards
+    : hand.decisions[hand.decisions.length - 1].tableState.playerHand;
 
   const eval_ = evaluateHand(playerCards);
   const isInSplit = state.splitHands.length > 0;
 
   return {
     playerHand: playerCards,
-    dealerUpcard: hand.dealerFinalHand[0],
+    dealerUpcard: hand.dealerCards[0],
     cardsDealt: state.cardsDealt,
     cardsRemainingInShoe: totalCards - state.cardsDealt,
     runningCount: state.runningCount,

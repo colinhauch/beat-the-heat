@@ -182,8 +182,8 @@ function handleDeal(state: GameState): GameState {
     betAmount: s.pendingBet,
     payout: 0,
     isBlackjack: playerEval.isBlackjack,
-    playerInitialHand: playerCards,
-    dealerFinalHand: dealerCards,
+    playerCards: playerCards,
+    dealerCards: dealerCards,
   };
 
   const newStack = s.playerStack - s.pendingBet;
@@ -235,8 +235,8 @@ function handleDebugHand(
     betAmount: state.pendingBet,
     payout: 0,
     isBlackjack: playerEval.isBlackjack,
-    playerInitialHand: playerCards,
-    dealerFinalHand: dealerCards,
+    playerCards: playerCards,
+    dealerCards: dealerCards,
   };
 
   const newStack = state.playerStack - state.pendingBet;
@@ -365,7 +365,7 @@ function handlePlayerAction(
       state,
       resolvedHand,
       state.playerStack + hand.betAmount + payout,
-      hand.dealerFinalHand,
+      hand.dealerCards,
       feedback,
     );
   }
@@ -406,7 +406,6 @@ function handlePlayerAction(
     const handWithNewCard: Hand = {
       ...updatedHand,
       decisions: [...updatedHand.decisions.slice(0, -1), updatedDecision],
-      dealerFinalHand: updatedHand.dealerFinalHand,
     };
 
     if (eval_.isBust) {
@@ -423,7 +422,7 @@ function handlePlayerAction(
         s,
         bustedHand,
         s.playerStack,
-        hand.dealerFinalHand,
+        hand.dealerCards,
         feedback,
       );
     }
@@ -475,7 +474,7 @@ function handlePlayerAction(
         s,
         bustedHand,
         newStack,
-        hand.dealerFinalHand,
+        hand.dealerCards,
         feedback,
       );
     }
@@ -514,8 +513,8 @@ function handlePlayerAction(
       betAmount: hand.betAmount,
       payout: 0,
       isBlackjack: false,
-      playerInitialHand: hand1Cards,
-      dealerFinalHand: hand.dealerFinalHand,
+      playerCards: hand1Cards,
+      dealerCards: hand.dealerCards,
     };
     const hand2: Hand = {
       handId: makeHandId(),
@@ -524,8 +523,8 @@ function handlePlayerAction(
       betAmount: hand.betAmount,
       payout: 0,
       isBlackjack: false,
-      playerInitialHand: hand2Cards,
-      dealerFinalHand: hand.dealerFinalHand,
+      playerCards: hand2Cards,
+      dealerCards: hand.dealerCards,
     };
 
     const newStack = s.playerStack - hand.betAmount; // extra bet for second hand
@@ -568,17 +567,17 @@ function buildCurrentTableState(state: GameState, hand: Hand): TableState {
   const rules = state.session.tableRules;
   const totalCards = rules.decks * 52;
 
-  // Player cards: from playerInitialHand initially, then updated via decisions
+  // Player cards: from playerCards initially, then updated via decisions
   let playerCards: Card[];
   if (hand.decisions.length === 0) {
-    playerCards = hand.playerInitialHand;
+    playerCards = hand.playerCards;
   } else {
     playerCards =
       hand.decisions[hand.decisions.length - 1].tableState.playerHand;
   }
 
   const eval_ = evaluateHand(playerCards);
-  const dealerUpcard = hand.dealerFinalHand[0];
+  const dealerUpcard = hand.dealerCards[0];
   const isInSplit = state.splitHands.length > 0;
   const canDouble =
     playerCards.length === 2 &&
@@ -616,7 +615,7 @@ function buildCurrentTableState(state: GameState, hand: Hand): TableState {
 function handleDealerDraw(state: GameState): GameState {
   const hand = state.currentHand!;
   const rules = state.session.tableRules;
-  const dealerCards = [...hand.dealerFinalHand]; // already includes hole card
+  const dealerCards = [...hand.dealerCards]; // already includes hole card
   const eval_ = evaluateHand(dealerCards);
 
   const shouldDraw =
@@ -635,12 +634,12 @@ function handleDealerDraw(state: GameState): GameState {
   const newDealerCards = [...dealerCards, card];
 
   const newEval = evaluateHand(newDealerCards);
-  const updatedHand: Hand = { ...hand, dealerFinalHand: newDealerCards };
+  const updatedHand: Hand = { ...hand, dealerCards: newDealerCards };
 
   // Update dealer cards in all split hands for display
   const updatedSplitHands = s.splitHands.map((h) => ({
     ...h,
-    dealerFinalHand: newDealerCards,
+    dealerCards: newDealerCards,
   }));
 
   if (
@@ -663,13 +662,13 @@ function handleDealerDraw(state: GameState): GameState {
 function resolveOneHand(hand: Hand, dealerCards: Card[]): Hand {
   // If already resolved (bust), just update dealer cards
   if (hand.outcome === "bust") {
-    return { ...hand, dealerFinalHand: dealerCards };
+    return { ...hand, dealerCards: dealerCards };
   }
 
   const playerCards =
     hand.decisions.length > 0
       ? hand.decisions[hand.decisions.length - 1].tableState.playerHand
-      : hand.playerInitialHand;
+      : hand.playerCards;
 
   const playerEval = evaluateHand(playerCards);
   const dealerEval = evaluateHand(dealerCards);
@@ -692,7 +691,7 @@ function resolveOneHand(hand: Hand, dealerCards: Card[]): Hand {
     ...hand,
     outcome,
     payout,
-    dealerFinalHand: dealerCards,
+    dealerCards: dealerCards,
   };
 }
 
@@ -745,7 +744,7 @@ function finishHand(
   state: GameState,
   hand: Hand,
   newStack: number,
-  _dealerCards: Card[],
+  _dealerCards?: Card[],
   feedback?: DecisionFeedback | null,
 ): GameState {
   const updatedSession: Session = {

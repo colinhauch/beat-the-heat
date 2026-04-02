@@ -2,10 +2,10 @@ import { useGame } from "../game/GameContext";
 import { PlayerAction, cardValue, Card } from "@beat-the-heat/shared";
 import "./ActionBar.css";
 
-function getPlayerCards(state: ReturnType<typeof useGame>["state"]): Card[] {
+function getPlayerCards(state: ReturnType<typeof useGame>['state']): Card[] {
   const hand = state.currentHand;
   if (!hand) return [];
-  if (hand.decisions.length === 0) return hand.playerInitialHand;
+  if (hand.decisions.length === 0) return hand.playerCards;
   return hand.decisions[hand.decisions.length - 1].tableState.playerHand;
 }
 
