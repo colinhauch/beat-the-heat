@@ -26,16 +26,16 @@ function row(vals: [StrategyAction, StrategyAction, StrategyAction, StrategyActi
 
 const hard_S17_DAS_SUR: Record<number, ActionMap> = {
   //          2      3      4      5      6      7      8      9      10     A
-  8:  row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
-  9:  row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  10: row(["double","double","double","double","double","double","double","double","hit",  "hit"]),
-  11: row(["double","double","double","double","double","double","double","double","double","hit"]),
-  12: row(["hit",  "hit",  "stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  13: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  14: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  15: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "surrender","hit"]),
-  16: row(["stand","stand","stand","stand","stand","hit",  "hit",  "surrender","surrender","surrender"]),
   17: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  16: row(["stand","stand","stand","stand","stand","hit",  "hit",  "surrender","surrender","surrender"]),
+  15: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "surrender","hit"]),
+  14: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
+  13: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
+  12: row(["hit",  "hit",  "stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
+  11: row(["double","double","double","double","double","double","double","double","double","hit"]),
+  10: row(["double","double","double","double","double","double","double","double","hit",  "hit"]),
+  9:  row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  8:  row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
 };
 
 const soft_S17_DAS_SUR: Record<number, ActionMap> = {
@@ -196,14 +196,6 @@ export function getStrategyForRules(rules: TableRules): StrategyTable {
     pairs: pairs_S17_DAS_SUR,
   };
 }
-
-// Keep BASIC_STRATEGY for backwards compatibility
-export const BASIC_STRATEGY: StrategyTable = {
-  name: "Basic Strategy (6-deck, S17, DAS)",
-  hard: hard_S17_DAS_SUR,
-  soft: soft_S17_DAS_SUR,
-  pairs: pairs_S17_DAS_SUR,
-};
 
 // ─── Strategy Lookup ──────────────────────────────────────────────────────────
 
