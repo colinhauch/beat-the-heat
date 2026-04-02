@@ -53,18 +53,15 @@ const soft_S17_DAS_SUR: Record<number, ActionMap> = {
 const pairs_S17_DAS_SUR: Record<Rank, ActionMap> = {
   //          2      3      4      5      6      7      8      9      10     A
   "A": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "2": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "3": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "4": row(["hit",  "hit",  "hit",  "split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
-  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
-  "6": row(["split","split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
-  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
   "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "J": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "Q": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "K": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
+  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
+  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "6": row(["split","split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
+  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
+  "4": row(["hit",  "hit",  "hit",  "split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
+  "3": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "2": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
 };
 
 // ─── H17 + DAS + Surrender ───────────────────────────────────────────────────
@@ -72,45 +69,42 @@ const pairs_S17_DAS_SUR: Record<Rank, ActionMap> = {
 
 const hard_H17_DAS_SUR: Record<number, ActionMap> = {
   //          2      3      4      5      6      7      8      9      10     A
-  8:  row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
-  9:  row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  10: row(["double","double","double","double","double","double","double","double","hit",  "hit"]),
-  11: row(["double","double","double","double","double","double","double","double","double","double"]), // vs A: double on H17
-  12: row(["hit",  "hit",  "stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  13: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  14: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
-  15: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "surrender","surrender"]), // vs A: surrender on H17
-  16: row(["stand","stand","stand","stand","stand","hit",  "hit",  "surrender","surrender","surrender"]),
   17: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","surrender"]), // vs A: surrender on H17
+  16: row(["stand","stand","stand","stand","stand","hit",  "hit",  "surrender","surrender","surrender"]),
+  15: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "surrender","surrender"]), // vs A: surrender on H17
+  14: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
+  13: row(["stand","stand","stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
+  12: row(["hit",  "hit",  "stand","stand","stand","hit",  "hit",  "hit",  "hit",  "hit"]),
+  11: row(["double","double","double","double","double","double","double","double","double","double"]), // vs A: double on H17
+  10: row(["double","double","double","double","double","double","double","double","hit",  "hit"]),
+  9:  row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  8:  row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
 };
 
 const soft_H17_DAS_SUR: Record<number, ActionMap> = {
   //          2      3      4      5      6      7      8      9      10     A
-  13: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  14: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  15: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  16: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  17: row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
-  18: row(["double","double","double","double","double","stand","stand","hit",  "hit",  "hit"]), // vs 2: double on H17
-  19: row(["stand","stand","stand","stand","double","stand","stand","stand","stand","stand"]), // vs 6: double on H17
   20: row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  19: row(["stand","stand","stand","stand","double","stand","stand","stand","stand","stand"]), // vs 6: double on H17
+  18: row(["double","double","double","double","double","stand","stand","hit",  "hit",  "hit"]), // vs 2: double on H17
+  17: row(["hit",  "double","double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  16: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  15: row(["hit",  "hit",  "double","double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  14: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
+  13: row(["hit",  "hit",  "hit",  "double","double","hit",  "hit",  "hit",  "hit",  "hit"]),
 };
 
 const pairs_H17_DAS_SUR: Record<Rank, ActionMap> = {
   // Same as S17 for most cases - edit if H17 changes pair strategy
   "A": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "2": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "3": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "4": row(["hit",  "hit",  "hit",  "split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
-  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
-  "6": row(["split","split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
-  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
   "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "J": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "Q": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "K": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
+  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
+  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "6": row(["split","split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
+  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
+  "4": row(["hit",  "hit",  "hit",  "split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
+  "3": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "2": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
 };
 
 // ─── S17 + No DAS + Surrender ────────────────────────────────────────────────
@@ -119,18 +113,15 @@ const pairs_H17_DAS_SUR: Record<Rank, ActionMap> = {
 const pairs_S17_NDAS_SUR: Record<Rank, ActionMap> = {
   //          2      3      4      5      6      7      8      9      10     A
   "A": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "2": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]), // 2,3 vs 2,3: hit without DAS
-  "3": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "4": row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]), // 4s: never split without DAS
-  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
-  "6": row(["hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]), // 6 vs 2: hit without DAS
-  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
   "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "J": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "Q": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "K": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
+  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
+  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "6": row(["hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]), // 6 vs 2: hit without DAS
+  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
+  "4": row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]), // 4s: never split without DAS
+  "3": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "2": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]), // 2,3 vs 2,3: hit without DAS
 };
 
 // ─── H17 + No DAS + Surrender ────────────────────────────────────────────────
@@ -139,18 +130,15 @@ const pairs_S17_NDAS_SUR: Record<Rank, ActionMap> = {
 const pairs_H17_NDAS_SUR: Record<Rank, ActionMap> = {
   // Copy of NDAS pairs - edit if H17 changes anything
   "A": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "2": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "3": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "4": row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
-  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
-  "6": row(["hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
-  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
-  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
-  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
   "10":row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "J": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "Q": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
-  "K": row(["stand","stand","stand","stand","stand","stand","stand","stand","stand","stand"]),
+  "9": row(["split","split","split","split","split","stand","split","split","stand","stand"]),
+  "8": row(["split","split","split","split","split","split","split","split","split","split"]),
+  "7": row(["split","split","split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "6": row(["hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit",  "hit"]),
+  "5": row(["double","double","double","double","double","double","double","double","hit","hit"]),
+  "4": row(["hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit",  "hit"]),
+  "3": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
+  "2": row(["hit",  "hit",  "split","split","split","split","hit",  "hit",  "hit",  "hit"]),
 };
 
 // ─── No Surrender variants ───────────────────────────────────────────────────
