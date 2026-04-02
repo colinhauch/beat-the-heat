@@ -427,6 +427,13 @@ function handlePlayerAction(
       );
     }
 
+    // Keep splitHands in sync with currentHand during hit
+    if (s.splitHands.length > 0) {
+      const updatedSplitHands = s.splitHands.map((h, i) =>
+        i === s.activeSplitIndex ? handWithNewCard : h
+      );
+      return { ...s, currentHand: handWithNewCard, splitHands: updatedSplitHands, feedback };
+    }
     return { ...s, currentHand: handWithNewCard, feedback };
   }
 
