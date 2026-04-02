@@ -18,8 +18,15 @@ export function ActionBar() {
   const playerCards = getPlayerCards(state);
   const rules = session.tableRules;
 
+  // Check if we're in a split hand
+  const isInSplit = splitHands.length > 0;
+
+  // Double: allowed on first 2 cards, but during splits only if DAS is allowed
   const canDouble =
-    playerCards.length === 2 && playerStack >= currentHand.betAmount;
+    playerCards.length === 2 &&
+    playerStack >= currentHand.betAmount &&
+    (!isInSplit || rules.doubleAfterSplit);
+
   // splitCount = number of splits performed (2 hands = 1 split, 3 hands = 2 splits, etc.)
   const splitCount = splitHands.length > 0 ? splitHands.length - 1 : 0;
   const canSplit =
@@ -29,34 +36,39 @@ export function ActionBar() {
     cardValue(playerCards[0].rank) === cardValue(playerCards[1].rank) &&
     playerStack >= currentHand.betAmount &&
     splitCount < rules.maxSplits;
-  const canSurrender = playerCards.length === 2 && rules.surrenderAllowed;
+
+  // Surrender only on initial hand (not after split), and only if allowed
+  const canSurrender = playerCards.length === 2 && rules.surrenderAllowed && !isInSplit;
 
   const actions: {
     action: PlayerAction;
     label: string;
     enabled: boolean;
+    visible: boolean;
     cls: string;
   }[] = [
-    { action: "hit", label: "Hit", enabled: true, cls: "btn--hit" },
-    { action: "stand", label: "Stand", enabled: true, cls: "btn--stand" },
+    { action: "hit", label: "Hit", enabled: true, visible: true, cls: "btn--hit" },
+    { action: "stand", label: "Stand", enabled: true, visible: true, cls: "btn--stand" },
     {
       action: "double",
       label: "Double",
       enabled: canDouble,
+      visible: true,
       cls: "btn--double",
     },
-    { action: "split", label: "Split", enabled: !!canSplit, cls: "btn--split" },
+    { action: "split", label: "Split", enabled: canSplit, visible: true, cls: "btn--split" },
     {
       action: "surrender",
       label: "Surrender",
       enabled: canSurrender,
+      visible: rules.surrenderAllowed,
       cls: "btn--surrender",
     },
   ];
 
   return (
     <div className="action-bar">
-      {actions.map(({ action, label, enabled, cls }) => (
+      {actions.filter(a => a.visible).map(({ action, label, enabled, cls }) => (
         <button
           key={action}
           className={`action-btn ${cls}`}

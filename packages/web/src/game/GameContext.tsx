@@ -8,7 +8,7 @@ import {
 import {
   DEFAULT_TABLE_RULES,
   PlayerAction,
-  BASIC_STRATEGY,
+  getStrategyForRules,
   getRecommendation,
   adjustForRules,
   evaluateHand,
@@ -51,9 +51,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
     if (state.currentHand) {
       const ts = buildCurrentTableStateForContext(state);
       if (ts) {
+        const strategy = getStrategyForRules(state.session.tableRules);
         const raw = getRecommendation(
           ts,
-          BASIC_STRATEGY,
+          strategy,
           state.session.tableRules,
         );
         recommended = raw
@@ -90,6 +91,7 @@ function buildCurrentTableStateForContext(state: GameState) {
       : hand.decisions[hand.decisions.length - 1].tableState.playerHand;
 
   const eval_ = evaluateHand(playerCards);
+  const isInSplit = state.splitHands.length > 0;
 
   return {
     playerHand: playerCards,
@@ -102,13 +104,16 @@ function buildCurrentTableStateForContext(state: GameState) {
     handTotal: eval_.total,
     isSoft: eval_.isSoft,
     isPair: isPair(playerCards),
-    canDouble: playerCards.length === 2 && state.playerStack >= hand.betAmount,
+    canDouble:
+      playerCards.length === 2 &&
+      state.playerStack >= hand.betAmount &&
+      (!isInSplit || rules.doubleAfterSplit),
     canSplit:
       isPair(playerCards) &&
       state.playerStack >= hand.betAmount &&
       (state.splitHands.length > 0 ? state.splitHands.length - 1 : 0) <
         rules.maxSplits,
-    canSurrender: playerCards.length === 2 && rules.surrenderAllowed,
+    canSurrender: playerCards.length === 2 && rules.surrenderAllowed && !isInSplit,
     splitDepth: state.activeSplitIndex,
   };
 }

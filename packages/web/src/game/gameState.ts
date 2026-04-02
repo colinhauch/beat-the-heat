@@ -136,6 +136,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         runningCount: 0,
         cutCard,
         phase: "betting",
+        currentHand: null,
+        splitHands: [],
+        activeSplitIndex: 0,
+        feedback: null,
       };
     }
 
@@ -575,8 +579,11 @@ function buildCurrentTableState(state: GameState, hand: Hand): TableState {
 
   const eval_ = evaluateHand(playerCards);
   const dealerUpcard = hand.dealerFinalHand[0];
+  const isInSplit = state.splitHands.length > 0;
   const canDouble =
-    playerCards.length === 2 && state.playerStack >= hand.betAmount;
+    playerCards.length === 2 &&
+    state.playerStack >= hand.betAmount &&
+    (!isInSplit || rules.doubleAfterSplit);
   // Allow splits up to maxSplits times (maxSplits + 1 hands total)
   // splitHands.length: 0=no split, 2=1 split, 3=2 splits, 4=3 splits
   const splitCount =
@@ -599,7 +606,7 @@ function buildCurrentTableState(state: GameState, hand: Hand): TableState {
     isPair: isPair(playerCards),
     canDouble,
     canSplit,
-    canSurrender: playerCards.length === 2 && rules.surrenderAllowed,
+    canSurrender: playerCards.length === 2 && rules.surrenderAllowed && !isInSplit,
     splitDepth: state.activeSplitIndex,
   };
 }
