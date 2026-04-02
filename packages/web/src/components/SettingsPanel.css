@@ -1,0 +1,97 @@
+/* ─── Settings Panel ──────────────────────────────────────────────────── */
+.settings-panel {
+  padding: 12px 16px;
+  border-top: 1px solid var(--gold-dim);
+  background: rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+}
+
+.settings-title {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0.6;
+}
+
+/* ─── Grid ───────────────────────────────────────────────────────────── */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 10px;
+  align-items: center;
+}
+
+.settings-label {
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.settings-select {
+  padding: 4px 6px;
+  font-size: 0.72rem;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  color: var(--text-cream);
+  cursor: pointer;
+}
+
+.settings-select:hover {
+  border-color: var(--gold-mid);
+}
+
+.settings-select:focus {
+  outline: none;
+  border-color: var(--gold-bright);
+}
+
+/* ─── Note ───────────────────────────────────────────────────────────── */
+.settings-note {
+  font-size: 0.55rem;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  opacity: 0.5;
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* ─── Button ─────────────────────────────────────────────────────────── */
+.settings-btn {
+  padding: 8px 12px;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(100,100,100,0.15);
+  border: 1px solid var(--text-dim);
+  border-radius: 3px;
+  color: var(--text-dim);
+  cursor: not-allowed;
+  transition: all 0.15s ease;
+  margin-top: 8px;
+}
+
+.settings-btn--active {
+  background: rgba(201,168,76,0.2);
+  border-color: var(--gold-mid);
+  color: var(--gold-bright);
+  cursor: pointer;
+}
+
+.settings-btn--active:hover {
+  background: rgba(201,168,76,0.3);
+  border-color: var(--gold-bright);
+}
+
+.settings-btn--active:active {
+  transform: scale(0.98);
+}
