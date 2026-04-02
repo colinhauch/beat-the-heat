@@ -163,7 +163,8 @@ function handleDeal(state: GameState): GameState {
     betAmount: s.pendingBet,
     payout: 0,
     isBlackjack: playerEval.isBlackjack,
-    dealerFinalHand: [],
+    playerInitialHand: playerCards,
+    dealerFinalHand: dealerCards,
   };
 
   const newStack = s.playerStack - s.pendingBet;
@@ -177,16 +178,15 @@ function handleDeal(state: GameState): GameState {
       ...hand,
       outcome: "blackjack",
       payout,
-      dealerFinalHand: dealerCards,
     };
-    return finishHand(s, resolvedHand, newStack + s.pendingBet + payout, [d1, d2]);
+    return finishHand(s, resolvedHand, newStack + s.pendingBet + payout, dealerCards);
   }
 
   return {
     ...s,
     phase: "playerTurn",
     playerStack: newStack,
-    currentHand: { ...hand, dealerFinalHand: dealerCards },
+    currentHand: hand,
     splitHands: [],
     activeSplitIndex: 0,
     feedback: null,
@@ -293,7 +293,8 @@ function handlePlayerAction(
       betAmount: hand.betAmount,
       payout: 0,
       isBlackjack: false,
-      dealerFinalHand: [hand.dealerFinalHand[0], hand.dealerFinalHand[1], ...hand1Cards],
+      playerInitialHand: hand1Cards,
+      dealerFinalHand: hand.dealerFinalHand,
     };
     const hand2: Hand = {
       handId: makeHandId(),
@@ -302,7 +303,8 @@ function handlePlayerAction(
       betAmount: hand.betAmount,
       payout: 0,
       isBlackjack: false,
-      dealerFinalHand: [hand.dealerFinalHand[0], hand.dealerFinalHand[1], ...hand2Cards],
+      playerInitialHand: hand2Cards,
+      dealerFinalHand: hand.dealerFinalHand,
     };
 
     const newStack = s.playerStack - hand.betAmount; // extra bet for second hand
@@ -325,10 +327,10 @@ function buildCurrentTableState(state: GameState, hand: Hand): TableState {
   const rules = state.session.tableRules;
   const totalCards = rules.decks * 52;
 
-  // Player cards: stored in dealerFinalHand[2..] initially, then updated via decisions
+  // Player cards: from playerInitialHand initially, then updated via decisions
   let playerCards: Card[];
   if (hand.decisions.length === 0) {
-    playerCards = hand.dealerFinalHand.slice(2);
+    playerCards = hand.playerInitialHand;
   } else {
     playerCards = hand.decisions[hand.decisions.length - 1].tableState.playerHand;
   }
@@ -391,7 +393,7 @@ function handleDealerDraw(state: GameState): GameState {
 function resolveHand(state: GameState, hand: Hand, dealerCards: Card[]): GameState {
   const playerCards = hand.decisions.length > 0
     ? hand.decisions[hand.decisions.length - 1].tableState.playerHand
-    : hand.dealerFinalHand.slice(2);
+    : hand.playerInitialHand;
 
   const playerEval = evaluateHand(playerCards);
   const dealerEval = evaluateHand(dealerCards);

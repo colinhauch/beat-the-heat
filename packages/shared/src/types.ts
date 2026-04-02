@@ -74,7 +74,8 @@ export interface Hand {
   betAmount: number;
   payout: number;               // net chip change (positive = win, negative = loss)
   isBlackjack: boolean;
-  dealerFinalHand: Card[];
+  playerInitialHand: Card[];    // player's starting 2 cards
+  dealerFinalHand: Card[];      // dealer's cards (upcard, hole, + any draws)
 }
 
 // ─── Session ─────────────────────────────────────────────────────────────────

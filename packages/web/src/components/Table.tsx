@@ -10,7 +10,7 @@ import './Table.css'
 function getPlayerCards(state: ReturnType<typeof useGame>['state']): Card[] {
   const hand = state.currentHand
   if (!hand) return []
-  if (hand.decisions.length === 0) return hand.dealerFinalHand.slice(2)
+  if (hand.decisions.length === 0) return hand.playerInitialHand
   return hand.decisions[hand.decisions.length - 1].tableState.playerHand
 }
 
