@@ -65,7 +65,7 @@
 
 /* ─── Feedback Rail ──────────────────────────────────────────────────── */
 .feedback-rail {
-  width: 280px;
+  width: 340px;
   flex-shrink: 0;
   border-left: 1px solid var(--gold-dim);
   background: linear-gradient(
