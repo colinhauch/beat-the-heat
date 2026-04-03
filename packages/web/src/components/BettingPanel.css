@@ -70,13 +70,13 @@
 
 .chip-btn--green {
   background: radial-gradient(circle at 35% 35%, #1a5a1a 0%, #0d3d0d 60%, #052005 100%);
-  border-color: #4dff4d;
+  border-color: #00a700;
 }
 .chip-btn--green::before { border-color: rgba(77,255,77,0.35); }
 
 .chip-btn--blue {
   background: radial-gradient(circle at 35% 35%, #1a3a6a 0%, #0d2040 60%, #051020 100%);
-  border-color: #6bb3ff;
+  border-color: #3e6896;
 }
 .chip-btn--blue::before { border-color: rgba(107,179,255,0.35); }
 

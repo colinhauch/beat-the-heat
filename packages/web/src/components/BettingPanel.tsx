@@ -41,7 +41,7 @@ export function BettingPanel() {
         {QUICK_BETS.map(({ value, color }) => (
           <button
             key={value}
-            className={`chip-btn chip-btn--${color} ${pendingBet === value ? 'chip-btn--active' : ''}`}
+            className={`chip-btn chip-btn--${color}`}
             onClick={() => setBet(pendingBet + value)}
             disabled={value > playerStack}
           >
