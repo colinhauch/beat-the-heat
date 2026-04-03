@@ -42,7 +42,7 @@ export function BettingPanel() {
     setCustomInput(e.target.value)
     const val = parseInt(e.target.value, 10)
     if (!isNaN(val) && val > 0) {
-      dispatch({ type: 'SET_BET', amount: Math.min(val, playerStack) })
+      dispatch({ type: 'SET_BET', amount: Math.min(val, playerStack, maxBet) })
       setHasSelectedBet(true)
     }
   }
@@ -74,8 +74,8 @@ export function BettingPanel() {
           className="bet-custom-input mono"
           placeholder="Custom"
           value={customInput}
-          min={1}
-          max={playerStack}
+          min={minBet}
+          max={Math.min(playerStack, maxBet)}
           onChange={handleCustom}
         />
         <button
