@@ -11,11 +11,12 @@ const QUICK_BETS = [
 
 export function BettingPanel() {
   const { state, dispatch } = useGame()
-  const { playerStack, pendingBet } = state
+  const { playerStack, pendingBet, session } = state
+  const { minBet, maxBet } = session.tableRules
   const [customInput, setCustomInput] = useState('')
 
   const setBet = (amount: number) => {
-    const clamped = Math.max(1, Math.min(amount, playerStack))
+    const clamped = Math.max(minBet, Math.min(amount, playerStack, maxBet))
     dispatch({ type: 'SET_BET', amount: clamped })
     setCustomInput('')
   }
@@ -73,10 +74,9 @@ export function BettingPanel() {
       </button>
             <button
         className="deal-btn serif"
-        onClick={() => setBet(5)}
-        disabled={pendingBet <= 0 || pendingBet > playerStack}
+        onClick={() => setBet(minBet)}
       >
-        Reset Bet
+        Min Bet
       </button>
     </div>
   )

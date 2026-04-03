@@ -25,7 +25,9 @@ export function SettingsPanel() {
     pendingRules.doubleAfterSplit !== activeRules.doubleAfterSplit ||
     pendingRules.surrenderAllowed !== activeRules.surrenderAllowed ||
     pendingRules.blackjackPayout !== activeRules.blackjackPayout ||
-    pendingRules.decks !== activeRules.decks
+    pendingRules.decks !== activeRules.decks ||
+    pendingRules.minBet !== activeRules.minBet ||
+    pendingRules.maxBet !== activeRules.maxBet
 
   return (
     <div className="settings-panel">
@@ -34,6 +36,25 @@ export function SettingsPanel() {
       </div>
 
       <div className="settings-grid">
+        {/* Min Bet */}
+        <label className="settings-label mono">Min Bet</label>
+        <input
+          type="number"
+          className="settings-input mono"
+          value={pendingRules.minBet}
+          min={1}
+          onChange={e => updatePendingRule('minBet', parseInt(e.target.value))}
+        />
+        {/* Max Bet */}
+        <label className="settings-label mono">Max Bet</label>
+        <input
+          type="number"
+          className="settings-input mono"
+          value={pendingRules.maxBet}
+          min={1}
+          onChange={e => updatePendingRule('maxBet', parseInt(e.target.value))}
+        />
+
         {/* Dealer Soft 17 */}
         <label className="settings-label mono">Dealer Soft 17</label>
         <select

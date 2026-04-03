@@ -10,6 +10,7 @@ export function RulesFooter() {
     rules.doubleAfterSplit ? "DAS" : "No DAS",
     rules.surrenderAllowed ? "Surrender" : "No Surrender",
     `BJ ${rules.blackjackPayout}`,
+    `Min/Max Bet ${rules.minBet}/${rules.maxBet}`,
   ];
 
   return (
