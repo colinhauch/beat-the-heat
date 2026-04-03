@@ -117,26 +117,20 @@
 .controls-zone {
   flex-shrink: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 8px 0 4px;
-  min-height: 80px;
 }
 
 /* ─── Bet Indicator ──────────────────────────────────────────────────── */
 .bet-indicator {
-  position: absolute;
-  top: 50%;
-  right: -16px;
-  transform: translateY(-50%);
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
-  padding: 8px 10px;
-  background: rgba(0,0,0,0.45);
-  border: 1px solid var(--gold-dim);
-  border-radius: 4px;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 8px 16px;
+  margin-bottom: 10px;
 }
 
 .bet-label,
@@ -146,6 +140,7 @@
   text-transform: uppercase;
   color: var(--text-dim);
   opacity: 0.7;
+  margin-right: 4px;
 }
 
 .bet-amount,
@@ -157,7 +152,7 @@
 }
 
 .stack-label {
-  margin-top: 4px;
+  margin-top: 0;
 }
 
 /* ─── Split Hands ────────────────────────────────────────────────────── */

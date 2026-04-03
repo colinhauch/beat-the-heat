@@ -2,9 +2,7 @@ import { useGame } from "../game/GameContext";
 import { evaluateHand } from "@beat-the-heat/shared";
 import { Card, Hand } from "@beat-the-heat/shared";
 import { CardDisplay } from "./CardDisplay";
-import { ActionBar } from "./ActionBar";
-import { BettingPanel } from "./BettingPanel";
-import { DealerControls } from "./DealerControls";
+import { ControlDashboard } from "./ControlDashboard";
 import "./Table.css";
 
 function getPlayerCards(state: ReturnType<typeof useGame>["state"]): Card[] {
@@ -166,19 +164,12 @@ export function Table() {
 
       {/* Controls Zone */}
       <div className="controls-zone">
-        {(phase === "betting" || phase === "resolution") && <BettingPanel />}
-        {phase === "playerTurn" && <ActionBar />}
-        {(phase === "dealerTurn" || phase === "shoeEnd") && <DealerControls />}
-      </div>
-
-      {/* Bet chip indicator */}
-      {currentHand && (
         <div className="bet-indicator mono">
           <span className="bet-label">BET</span>
           <span className="bet-amount">
             {splitHands.length > 0
               ? splitHands.reduce((sum, h) => sum + h.betAmount, 0)
-              : currentHand.betAmount}
+              : currentHand?.betAmount ?? state.pendingBet}
           </span>
           <span className="stack-label">STACK</span>
           <span
@@ -191,7 +182,8 @@ export function Table() {
             {state.playerStack}
           </span>
         </div>
-      )}
+        <ControlDashboard />
+      </div>
     </div>
   );
 }
