@@ -41,7 +41,7 @@ export function BettingPanel() {
           <button
             key={value}
             className={`chip-btn chip-btn--${color} ${pendingBet === value ? 'chip-btn--active' : ''}`}
-            onClick={() => setBet(value)}
+            onClick={() => setBet(pendingBet + value)}
             disabled={value > playerStack}
           >
             <span className="chip-value mono">{value}</span>
@@ -70,6 +70,13 @@ export function BettingPanel() {
         disabled={pendingBet <= 0 || pendingBet > playerStack}
       >
         Deal
+      </button>
+            <button
+        className="deal-btn serif"
+        onClick={() => setBet(5)}
+        disabled={pendingBet <= 0 || pendingBet > playerStack}
+      >
+        Reset Bet
       </button>
     </div>
   )
