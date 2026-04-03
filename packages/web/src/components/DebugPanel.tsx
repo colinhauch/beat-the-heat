@@ -24,11 +24,18 @@ function makeCard(rank: Rank): Card {
 }
 
 export function DebugPanel() {
-  const { dispatch } = useGame();
+  const { state, dispatch } = useGame();
   const [p1, setP1] = useState<Rank>("A");
   const [p2, setP2] = useState<Rank>("6");
   const [d1, setD1] = useState<Rank>("10");
   const [d2, setD2] = useState<Rank>("7");
+
+  const { runningCount, cardsDealt, session } = state;
+  const decks = session.tableRules.decks;
+  const totalCards = decks * 52;
+  const cardsRemaining = totalCards - cardsDealt;
+  const decksRemaining = cardsRemaining / 52;
+  const trueCount = decksRemaining > 0 ? runningCount / decksRemaining : 0;
 
   function handleSetHand() {
     dispatch({
@@ -101,6 +108,31 @@ export function DebugPanel() {
       <button className="debug-btn mono" onClick={handleSetHand}>
         Set Hand
       </button>
+
+      <div className="debug-divider" />
+
+      <div className="debug-stats">
+        <div className="debug-stat">
+          <span className="debug-stat-label mono">Running Count</span>
+          <span className={`debug-stat-value mono ${runningCount > 0 ? 'count-positive' : runningCount < 0 ? 'count-negative' : ''}`}>
+            {runningCount > 0 ? '+' : ''}{runningCount}
+          </span>
+        </div>
+        <div className="debug-stat">
+          <span className="debug-stat-label mono">True Count</span>
+          <span className={`debug-stat-value mono ${trueCount > 0 ? 'count-positive' : trueCount < 0 ? 'count-negative' : ''}`}>
+            {trueCount > 0 ? '+' : ''}{trueCount.toFixed(1)}
+          </span>
+        </div>
+        <div className="debug-stat">
+          <span className="debug-stat-label mono">Cards Dealt</span>
+          <span className="debug-stat-value mono">{cardsDealt} / {totalCards}</span>
+        </div>
+        <div className="debug-stat">
+          <span className="debug-stat-label mono">Decks Remaining</span>
+          <span className="debug-stat-value mono">{decksRemaining.toFixed(1)}</span>
+        </div>
+      </div>
     </div>
   );
 }

@@ -36,6 +36,7 @@ export interface GameState {
   shoe: Card[];
   cardsDealt: number;
   runningCount: number;
+  holeCardCounted: boolean; // true once dealer's hole card has been revealed and counted
   cutCard: number; // index in shoe where cut card is placed
   currentHand: Hand | null;
   pendingBet: number;
@@ -75,6 +76,7 @@ export function initialGameState(
     shoe,
     cardsDealt: 0,
     runningCount: 0,
+    holeCardCounted: false,
     cutCard,
     currentHand: null,
     pendingBet: Math.max(rules.decks, 10), // sensible default bet
@@ -134,6 +136,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         shoe,
         cardsDealt: 0,
         runningCount: 0,
+        holeCardCounted: false,
         cutCard,
         phase: "betting",
         currentHand: null,
@@ -153,9 +156,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
 // ─── Deal ─────────────────────────────────────────────────────────────────────
 
-function dealCard(state: GameState): { card: Card; state: GameState } {
+function dealCard(state: GameState, countIt = true): { card: Card; state: GameState } {
   const card = state.shoe[state.cardsDealt];
-  const runningCount = state.runningCount + hiLoValue(card.rank);
+  const runningCount = countIt 
+    ? state.runningCount + hiLoValue(card.rank)
+    : state.runningCount;
   return {
     card,
     state: { ...state, cardsDealt: state.cardsDealt + 1, runningCount },
@@ -169,7 +174,7 @@ function handleDeal(state: GameState): GameState {
   ({ card: p1, state: s } = dealCard(s));
   ({ card: d1, state: s } = dealCard(s));
   ({ card: p2, state: s } = dealCard(s));
-  ({ card: d2, state: s } = dealCard(s));
+  ({ card: d2, state: s } = dealCard(s, false)); // hole card - don't count yet
 
   const playerCards = [p1, p2];
   const dealerCards = [d1, d2]; // d2 is hole card (face down)
@@ -214,6 +219,7 @@ function handleDeal(state: GameState): GameState {
     currentHand: hand,
     splitHands: [],
     activeSplitIndex: 0,
+    holeCardCounted: false,
     feedback: null,
   };
 }
@@ -285,6 +291,7 @@ function handleDebugHand(
     currentHand: hand,
     splitHands: [],
     activeSplitIndex: 0,
+    holeCardCounted: false,
     feedback: null,
   };
 }
@@ -620,8 +627,20 @@ function buildCurrentTableState(state: GameState, hand: Hand): TableState {
 // ─── Dealer Turn ──────────────────────────────────────────────────────────────
 
 function handleDealerDraw(state: GameState): GameState {
-  const hand = state.currentHand!;
-  const rules = state.session.tableRules;
+  let s = state;
+
+  // Count hole card when first revealed
+  if (!s.holeCardCounted && s.currentHand) {
+    const holeCard = s.currentHand.dealerCards[1];
+    s = {
+      ...s,
+      runningCount: s.runningCount + hiLoValue(holeCard.rank),
+      holeCardCounted: true,
+    };
+  }
+
+  const hand = s.currentHand!;
+  const rules = s.session.tableRules;
   const dealerCards = [...hand.dealerCards]; // already includes hole card
   const eval_ = evaluateHand(dealerCards);
 
@@ -631,11 +650,10 @@ function handleDealerDraw(state: GameState): GameState {
 
   if (!shouldDraw) {
     // Dealer stands — resolve
-    return resolveHand(state, hand, dealerCards);
+    return resolveHand(s, hand, dealerCards);
   }
 
   // Draw one more card
-  let s = state;
   const { card, state: s2 } = dealCard(s);
   s = s2;
   const newDealerCards = [...dealerCards, card];
@@ -791,6 +809,7 @@ function handleShuffle(state: GameState): GameState {
     shoe,
     cardsDealt: 0,
     runningCount: 0,
+    holeCardCounted: false,
     cutCard,
     phase: "betting",
   };
