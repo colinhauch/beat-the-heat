@@ -14,6 +14,7 @@ export function BettingPanel() {
   const { playerStack, pendingBet, session } = state
   const { minBet, maxBet } = session.tableRules
   const [customInput, setCustomInput] = useState('')
+  const [hasSelectedBet, setHasSelectedBet] = useState(false)
 
   const setBet = (amount: number) => {
     const clamped = Math.max(minBet, Math.min(amount, playerStack, maxBet))
@@ -21,11 +22,28 @@ export function BettingPanel() {
     setCustomInput('')
   }
 
+  const handleChipClick = (chipValue: number) => {
+    if (!hasSelectedBet) {
+      // First chip click: set bet to chip value
+      setBet(chipValue)
+      setHasSelectedBet(true)
+    } else {
+      // Subsequent clicks: add to current bet
+      setBet(pendingBet + chipValue)
+    }
+  }
+
+  const handleMinBet = () => {
+    setBet(minBet)
+    setHasSelectedBet(false)
+  }
+
   const handleCustom = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCustomInput(e.target.value)
     const val = parseInt(e.target.value, 10)
     if (!isNaN(val) && val > 0) {
       dispatch({ type: 'SET_BET', amount: Math.min(val, playerStack) })
+      setHasSelectedBet(true)
     }
   }
 
@@ -42,7 +60,7 @@ export function BettingPanel() {
           <button
             key={value}
             className={`chip-btn chip-btn--${color}`}
-            onClick={() => setBet(pendingBet + value)}
+            onClick={() => handleChipClick(value)}
             disabled={value > playerStack}
           >
             <span className="chip-value mono">{value}</span>
@@ -74,7 +92,7 @@ export function BettingPanel() {
       </button>
             <button
         className="deal-btn serif"
-        onClick={() => setBet(minBet)}
+        onClick={handleMinBet}
       >
         Min Bet
       </button>
