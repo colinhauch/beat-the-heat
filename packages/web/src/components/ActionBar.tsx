@@ -40,45 +40,54 @@ export function ActionBar() {
   // Surrender only on initial hand (not after split), and only if allowed
   const canSurrender = playerCards.length === 2 && rules.surrenderAllowed && !isInSplit;
 
-  const actions: {
-    action: PlayerAction;
-    label: string;
-    enabled: boolean;
-    visible: boolean;
-    cls: string;
-  }[] = [
-    { action: "hit", label: "Hit", enabled: true, visible: true, cls: "btn--hit" },
-    { action: "stand", label: "Stand", enabled: true, visible: true, cls: "btn--stand" },
-    {
-      action: "double",
-      label: "Double",
-      enabled: canDouble,
-      visible: true,
-      cls: "btn--double",
-    },
-    { action: "split", label: "Split", enabled: canSplit, visible: true, cls: "btn--split" },
-    {
-      action: "surrender",
-      label: "Surrender",
-      enabled: canSurrender,
-      visible: rules.surrenderAllowed,
-      cls: "btn--surrender",
-    },
-  ];
-
   return (
     <div className="action-bar">
-      {actions.filter(a => a.visible).map(({ action, label, enabled, cls }) => (
+      <div className="action-row action-row--primary">
         <button
-          key={action}
-          className={`action-btn ${cls}`}
-          disabled={!enabled}
-          onClick={() => dispatchPlayerAction(action)}
-          aria-label={label}
+          className="action-btn action-btn--lg btn--hit"
+          disabled={false}
+          onClick={() => dispatchPlayerAction("hit")}
+          aria-label="Hit"
         >
-          <span className="btn-label mono">{label}</span>
+          <span className="btn-label mono">Hit</span>
         </button>
-      ))}
+        <button
+          className="action-btn action-btn--lg btn--stand"
+          disabled={false}
+          onClick={() => dispatchPlayerAction("stand")}
+          aria-label="Stand"
+        >
+          <span className="btn-label mono">Stand</span>
+        </button>
+      </div>
+      <div className="action-row action-row--secondary">
+        <button
+          className="action-btn action-btn-secondary action-btn--sm btn--double"
+          disabled={!canDouble}
+          onClick={() => dispatchPlayerAction("double")}
+          aria-label="Double"
+        >
+          <span className="btn-label mono">Double</span>
+        </button>
+        <button
+          className="action-btn action-btn-secondary action-btn--sm btn--split"
+          disabled={!canSplit}
+          onClick={() => dispatchPlayerAction("split")}
+          aria-label="Split"
+        >
+          <span className="btn-label mono">Split</span>
+        </button>
+        {rules.surrenderAllowed && (
+          <button
+            className="action-btn action-btn-secondary action-btn--sm btn--surrender"
+            disabled={!canSurrender}
+            onClick={() => dispatchPlayerAction("surrender")}
+            aria-label="Surrender"
+          >
+            <span className="btn-label mono">Surrender</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }
