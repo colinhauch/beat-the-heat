@@ -2,7 +2,12 @@ import { useState } from 'react'
 import { useGame } from '../game/GameContext'
 import './BettingPanel.css'
 
-const QUICK_BETS = [10, 25, 50, 100]
+const QUICK_BETS = [
+  { value: 5, color: 'red' },
+  { value: 25, color: 'green' },
+  { value: 50, color: 'blue' },
+  { value: 100, color: 'black' },
+]
 
 export function BettingPanel() {
   const { state, dispatch } = useGame()
@@ -32,14 +37,14 @@ export function BettingPanel() {
   return (
     <div className="betting-panel">
       <div className="bet-quick-row">
-        {QUICK_BETS.map(amt => (
+        {QUICK_BETS.map(({ value, color }) => (
           <button
-            key={amt}
-            className={`chip-btn ${pendingBet === amt ? 'chip-btn--active' : ''}`}
-            onClick={() => setBet(amt)}
-            disabled={amt > playerStack}
+            key={value}
+            className={`chip-btn chip-btn--${color} ${pendingBet === value ? 'chip-btn--active' : ''}`}
+            onClick={() => setBet(value)}
+            disabled={value > playerStack}
           >
-            <span className="chip-value mono">{amt}</span>
+            <span className="chip-value mono">{value}</span>
           </button>
         ))}
         <input
