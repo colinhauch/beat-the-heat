@@ -109,7 +109,7 @@ export function Table() {
                   <div className="hand-total mono">
                     {handEval.isBust ? (
                       <span className="total--bust">
-                        Bust ({handEval.total})
+                             ({handEval.total}) Bust
                       </span>
                     ) : isResolved && hand.outcome ? (
                       <span className={`total--${hand.outcome}`}>
@@ -143,7 +143,7 @@ export function Table() {
             {playerEval && (
               <div className="hand-total mono">
                 {playerEval.isBust ? (
-                  <span className="total--bust">Bust ({playerEval.total})</span>
+                  <span className="total--bust">{playerEval.total}</span>
                 ) : playerEval.isBlackjack ? (
                   <span className="total--blackjack">Blackjack! ✦</span>
                 ) : (
@@ -167,9 +167,11 @@ export function Table() {
         <div className="bet-indicator mono">
           <span className="bet-label">BET</span>
           <span className="bet-amount">
-            {splitHands.length > 0
+            {splitHands.length > 0 && phase !== "resolution" && phase !== "betting"
               ? splitHands.reduce((sum, h) => sum + h.betAmount, 0)
-              : currentHand?.betAmount ?? state.pendingBet}
+              : phase === "betting" || phase === "resolution"
+                ? state.pendingBet
+                : currentHand?.betAmount ?? state.pendingBet}
           </span>
           <span className="stack-label">STACK</span>
           <span
