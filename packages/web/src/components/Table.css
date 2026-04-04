@@ -65,7 +65,10 @@
   font-weight: 500;
   color: var(--text-cream);
   letter-spacing: 0.05em;
-  min-height: 1.4em;
+  height: 1.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .total--bust {

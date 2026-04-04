@@ -19,14 +19,28 @@ function getHandCards(hand: Hand): Card[] {
 
 export function Table() {
   const { state } = useGame();
-  const { phase, currentHand, splitHands, activeSplitIndex } = state;
+  const { phase, currentHand, splitHands, activeSplitIndex, dealStep } = state;
 
-  const playerCards = getPlayerCards(state);
-  const dealerCards = currentHand?.dealerCards.slice(0, 2) ?? [];
+  // During dealing, reveal cards one at a time in deal order: p1, d1, p2, d2(hole)
+  const allPlayerCards = getPlayerCards(state);
+  const allDealerCards = currentHand?.dealerCards.slice(0, 2) ?? [];
   const dealerExtraCards = currentHand?.dealerCards.slice(2) ?? [];
 
+  let playerCards: Card[];
+  let dealerCards: Card[];
+  if (phase === "dealing") {
+    playerCards = dealStep >= 1 ? [allPlayerCards[0], ...(dealStep >= 3 ? [allPlayerCards[1]] : [])].filter(Boolean) : [];
+    dealerCards = [
+      ...(dealStep >= 2 ? [allDealerCards[0]] : []),
+      ...(dealStep >= 4 ? [allDealerCards[1]] : []),
+    ];
+  } else {
+    playerCards = allPlayerCards;
+    dealerCards = allDealerCards;
+  }
+
   // During player turn, hole card is face down
-  const showHoleCard = phase !== "playerTurn";
+  const showHoleCard = phase !== "playerTurn" && phase !== "dealing";
 
   // Hand totals
   const playerEval = playerCards.length > 0 ? evaluateHand(playerCards) : null;
@@ -46,26 +60,24 @@ export function Table() {
         {currentHand ? (
           <>
             <div className="hand-row">
-              {dealerCards[0] && <CardDisplay card={dealerCards[0]} />}
+              {dealerCards[0] && <CardDisplay key={`d0-${dealerCards[0].rank}${dealerCards[0].suit}`} card={dealerCards[0]} />}
               {dealerCards[1] && (
-                <CardDisplay card={showHoleCard ? dealerCards[1] : null} />
+                <CardDisplay
+                  key={showHoleCard ? "d1-revealed" : "d1-hole"}
+                  card={showHoleCard ? dealerCards[1] : null}
+                />
               )}
               {dealerExtraCards.map((card, i) => (
-                <CardDisplay key={i} card={card} />
+                <CardDisplay key={`dx-${i}-${card.rank}${card.suit}`} card={card} />
               ))}
             </div>
-            {dealerEval && showHoleCard && (
-              <div className="hand-total mono">
-                {dealerEval.isBust ? (
-                  <span className="total--bust">Bust ({dealerEval.total})</span>
-                ) : (
-                  <span>
-                    {dealerEval.total}
-                    {dealerEval.isSoft ? " soft" : ""}
-                  </span>
-                )}
-              </div>
-            )}
+            <div className="hand-total mono">
+              {dealerEval && (dealerEval.isBust ? (
+                <span className="total--bust">Bust ({dealerEval.total})</span>
+              ) : (
+                <span>{dealerEval.total}{dealerEval.isSoft ? " soft" : ""}</span>
+              ))}
+            </div>
           </>
         ) : (
           <div className="hand-row hand-row--empty">
@@ -103,7 +115,7 @@ export function Table() {
                   <div className="split-hand-label mono">Hand {idx + 1}</div>
                   <div className="hand-row">
                     {cards.map((card, i) => (
-                      <CardDisplay key={i} card={card} />
+                      <CardDisplay key={`s${idx}-${i}-${card.rank}${card.suit}`} card={card} />
                     ))}
                   </div>
                   <div className="hand-total mono">
@@ -137,23 +149,18 @@ export function Table() {
           <>
             <div className="hand-row">
               {playerCards.map((card, i) => (
-                <CardDisplay key={i} card={card} />
+                <CardDisplay key={`p${i}-${card.rank}${card.suit}`} card={card} />
               ))}
             </div>
-            {playerEval && (
-              <div className="hand-total mono">
-                {playerEval.isBust ? (
-                  <span className="total--bust">{playerEval.total}</span>
-                ) : playerEval.isBlackjack ? (
-                  <span className="total--blackjack">Blackjack! ✦</span>
-                ) : (
-                  <span>
-                    {playerEval.total}
-                    {playerEval.isSoft ? " soft" : ""}
-                  </span>
-                )}
-              </div>
-            )}
+            <div className="hand-total mono">
+              {playerEval && (playerEval.isBust ? (
+                <span className="total--bust">{playerEval.total}</span>
+              ) : playerEval.isBlackjack ? (
+                <span className="total--blackjack">Blackjack! ✦</span>
+              ) : (
+                <span>{playerEval.total}{playerEval.isSoft ? " soft" : ""}</span>
+              ))}
+            </div>
           </>
         ) : (
           <div className="hand-row hand-row--empty">
