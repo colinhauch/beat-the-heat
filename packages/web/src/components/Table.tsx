@@ -166,11 +166,9 @@ export function Table() {
 
       {/* Controls Zone */}
       <div className="controls-zone">
-        {phase === "betting" && <BettingPanel />}
+        {(phase === "betting" || phase === "resolution") && <BettingPanel />}
         {phase === "playerTurn" && <ActionBar />}
-        {(phase === "dealerTurn" ||
-          phase === "resolution" ||
-          phase === "shoeEnd") && <DealerControls />}
+        {(phase === "dealerTurn" || phase === "shoeEnd") && <DealerControls />}
       </div>
 
       {/* Bet chip indicator */}

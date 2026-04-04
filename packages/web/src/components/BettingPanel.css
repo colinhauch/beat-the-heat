@@ -61,6 +61,31 @@
   cursor: not-allowed;
 }
 
+/* Chip color variants */
+.chip-btn--red {
+  background: radial-gradient(circle at 35% 35%, #8b2020 0%, #5a1010 60%, #3a0808 100%);
+  border-color: #ff6b6b;
+}
+.chip-btn--red::before { border-color: rgba(255,107,107,0.35); }
+
+.chip-btn--green {
+  background: radial-gradient(circle at 35% 35%, #1a5a1a 0%, #0d3d0d 60%, #052005 100%);
+  border-color: #00a700;
+}
+.chip-btn--green::before { border-color: rgba(77,255,77,0.35); }
+
+.chip-btn--blue {
+  background: radial-gradient(circle at 35% 35%, #1a3a6a 0%, #0d2040 60%, #051020 100%);
+  border-color: #3e6896;
+}
+.chip-btn--blue::before { border-color: rgba(107,179,255,0.35); }
+
+.chip-btn--black {
+  background: radial-gradient(circle at 35% 35%, #3a3a3a 0%, #1a1a1a 60%, #0a0a0a 100%);
+  border-color: #888;
+}
+.chip-btn--black::before { border-color: rgba(136,136,136,0.35); }
+
 .chip-value {
   font-size: 0.72rem;
   font-weight: 500;

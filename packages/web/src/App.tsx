@@ -5,6 +5,7 @@ import { FeedbackPanel } from "./components/FeedbackPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { DebugPanel } from "./components/DebugPanel";
 import { RulesFooter } from "./components/RulesFooter";
+import { CountPanel } from "./components/CountPanel";
 import "./App.css";
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
             <Table />
           </div>
           <aside className="feedback-rail">
+            <CountPanel />
             <FeedbackPanel />
             <SettingsPanel />
             <DebugPanel />

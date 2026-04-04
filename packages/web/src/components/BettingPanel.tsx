@@ -2,17 +2,40 @@ import { useState } from 'react'
 import { useGame } from '../game/GameContext'
 import './BettingPanel.css'
 
-const QUICK_BETS = [10, 25, 50, 100]
+const QUICK_BETS = [
+  { value: 5, color: 'red' },
+  { value: 25, color: 'green' },
+  { value: 50, color: 'blue' },
+  { value: 100, color: 'black' },
+]
 
 export function BettingPanel() {
   const { state, dispatch } = useGame()
-  const { playerStack, pendingBet } = state
+  const { playerStack, pendingBet, session } = state
+  const { minBet, maxBet } = session.tableRules
   const [customInput, setCustomInput] = useState('')
+  const [hasSelectedBet, setHasSelectedBet] = useState(false)
 
   const setBet = (amount: number) => {
-    const clamped = Math.max(1, Math.min(amount, playerStack))
+    const clamped = Math.max(minBet, Math.min(amount, playerStack, maxBet))
     dispatch({ type: 'SET_BET', amount: clamped })
     setCustomInput('')
+  }
+
+  const handleChipClick = (chipValue: number) => {
+    if (!hasSelectedBet) {
+      // First chip click: set bet to chip value
+      setBet(chipValue)
+      setHasSelectedBet(true)
+    } else {
+      // Subsequent clicks: add to current bet
+      setBet(pendingBet + chipValue)
+    }
+  }
+
+  const handleMinBet = () => {
+    setBet(minBet)
+    setHasSelectedBet(false)
   }
 
   const handleCustom = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,6 +43,7 @@ export function BettingPanel() {
     const val = parseInt(e.target.value, 10)
     if (!isNaN(val) && val > 0) {
       dispatch({ type: 'SET_BET', amount: Math.min(val, playerStack) })
+      setHasSelectedBet(true)
     }
   }
 
@@ -32,14 +56,14 @@ export function BettingPanel() {
   return (
     <div className="betting-panel">
       <div className="bet-quick-row">
-        {QUICK_BETS.map(amt => (
+        {QUICK_BETS.map(({ value, color }) => (
           <button
-            key={amt}
-            className={`chip-btn ${pendingBet === amt ? 'chip-btn--active' : ''}`}
-            onClick={() => setBet(amt)}
-            disabled={amt > playerStack}
+            key={value}
+            className={`chip-btn chip-btn--${color}`}
+            onClick={() => handleChipClick(value)}
+            disabled={value > playerStack}
           >
-            <span className="chip-value mono">{amt}</span>
+            <span className="chip-value mono">{value}</span>
           </button>
         ))}
         <input
@@ -65,6 +89,12 @@ export function BettingPanel() {
         disabled={pendingBet <= 0 || pendingBet > playerStack}
       >
         Deal
+      </button>
+            <button
+        className="deal-btn serif"
+        onClick={handleMinBet}
+      >
+        Min Bet
       </button>
     </div>
   )

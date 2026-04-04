@@ -78,3 +78,43 @@
 .debug-btn:active {
   transform: scale(0.98);
 }
+
+/* ─── Stats Section ──────────────────────────────────────────────────── */
+.debug-divider {
+  height: 1px;
+  background: var(--gold-dim);
+  opacity: 0.3;
+  margin: 4px 0;
+}
+
+.debug-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.debug-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.debug-stat-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.debug-stat-value {
+  font-size: 0.8rem;
+  color: var(--text-cream);
+}
+
+.debug-stat-value.count-positive {
+  color: #4dff4d;
+}
+
+.debug-stat-value.count-negative {
+  color: #ff6b6b;
+}

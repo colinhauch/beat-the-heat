@@ -46,6 +46,16 @@
   cursor: pointer;
 }
 
+.settings-input{
+  padding: 4px 6px;
+  font-size: 0.72rem;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  color: var(--text-cream);
+  cursor: pointer;
+}
+
 .settings-select:hover {
   border-color: var(--gold-mid);
 }

@@ -19,6 +19,8 @@ export interface TableRules {
   blackjackPayout: "3:2" | "6:5";
   cutCardPenetration: number;       // 0–1, fraction of shoe dealt before shuffle (e.g. 0.75)
   maxSplits: number;                // max times a hand can be split
+  minBet: number;
+  maxBet: number;
 }
 
 export const DEFAULT_TABLE_RULES: TableRules = {
@@ -30,6 +32,8 @@ export const DEFAULT_TABLE_RULES: TableRules = {
   blackjackPayout: "3:2",
   cutCardPenetration: 0.75,
   maxSplits: 3,                   // allows up to 4 hands total (original + 3 splits), doing more kind of breaks it.
+  minBet: 5,
+  maxBet: 500,
 };
 
 // ─── Actions ─────────────────────────────────────────────────────────────────

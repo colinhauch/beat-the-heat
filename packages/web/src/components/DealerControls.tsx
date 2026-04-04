@@ -13,19 +13,6 @@ export function DealerControls() {
     );
   }
 
-  if (phase === "resolution") {
-    return (
-      <div className="dealer-controls">
-        <button
-          className="dealer-btn dealer-btn--next serif"
-          onClick={() => dispatch({ type: "NEXT_HAND" })}
-        >
-          Next Hand
-        </button>
-      </div>
-    );
-  }
-
   if (phase === "shoeEnd") {
     return (
       <div className="dealer-controls">
