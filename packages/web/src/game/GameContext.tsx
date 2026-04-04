@@ -5,6 +5,10 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+
+// ─── Timing Config ────────────────────────────────────────────────────────────
+export const DEAL_INTERVAL_MS = 400;  // delay between each card during initial deal
+export const DEALER_DRAW_INTERVAL_MS = 500; // delay between dealer draw steps
 import {
   DEFAULT_TABLE_RULES,
   PlayerAction,
@@ -35,12 +39,22 @@ export function GameProvider({ children }: { children: ReactNode }) {
     initialGameState(DEFAULT_TABLE_RULES, 1000),
   );
 
+  // Auto-deal cards one at a time
+  useEffect(() => {
+    if (state.phase === "dealing") {
+      const timer = setTimeout(() => {
+        dispatch({ type: "DEAL_CARD" });
+      }, DEAL_INTERVAL_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [state.phase, state.dealStep]);
+
   // Auto-run dealer turn
   useEffect(() => {
     if (state.phase === "dealerTurn") {
       const timer = setTimeout(() => {
         dispatch({ type: "DEALER_DRAW" });
-      }, 500); // 500ms delay for visual effect
+      }, DEALER_DRAW_INTERVAL_MS);
       return () => clearTimeout(timer);
     }
   }, [state.phase, state.currentHand?.dealerCards.length]);
