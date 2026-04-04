@@ -1,3 +1,15 @@
+/* ─── Deal Animation ─────────────────────────────────────────────────── */
+@keyframes card-deal {
+  from {
+    opacity: 0;
+    transform: translateY(-120px) rotate(-8deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
 /* ─── Card Base ──────────────────────────────────────────────────────── */
 .card {
   width: var(--card-w);
@@ -6,7 +18,19 @@
   position: relative;
   flex-shrink: 0;
   user-select: none;
+  animation: card-deal 280ms cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
+
+/* hole card reveal animation — disabled, needs rework
+@keyframes card-reveal {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.card--flip {
+  animation: card-reveal 500ms ease-in both;
+}
+*/
 
 .card--small {
   width: 60px;
