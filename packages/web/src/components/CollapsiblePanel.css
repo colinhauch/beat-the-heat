@@ -67,6 +67,22 @@
   opacity: 1;
 }
 
+.collapsible-panel.grow {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.collapsible-panel.grow .cp-content {
+  flex: 1;
+  min-height: 0;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .collapsible-panel.collapsed .cp-content {
   max-height: 0;
   opacity: 0;

@@ -5,13 +5,14 @@ interface CollapsiblePanelProps {
   title: string
   children: ReactNode
   defaultExpanded?: boolean
+  grow?: boolean
 }
 
-export function CollapsiblePanel({ title, children, defaultExpanded = true }: CollapsiblePanelProps) {
+export function CollapsiblePanel({ title, children, defaultExpanded = true, grow }: CollapsiblePanelProps) {
   const [expanded, setExpanded] = useState(defaultExpanded)
 
   return (
-    <div className={`collapsible-panel ${expanded ? 'expanded' : 'collapsed'}`}>
+    <div className={`collapsible-panel ${expanded ? 'expanded' : 'collapsed'} ${grow ? 'grow' : ''}`}>
       <button
         className="cp-header"
         onClick={() => setExpanded(!expanded)}

@@ -51,7 +51,7 @@ export default function App() {
             <CollapsiblePanel title="Shoe Info" defaultExpanded={true}>
               <CountPanel />
             </CollapsiblePanel>
-            <CollapsiblePanel title="Decision Accuracy" defaultExpanded={true}>
+            <CollapsiblePanel title="Decision Accuracy" defaultExpanded={true} grow>
               <FeedbackPanel />
             </CollapsiblePanel>
             <CollapsiblePanel title="Table Rules" defaultExpanded={false}>
