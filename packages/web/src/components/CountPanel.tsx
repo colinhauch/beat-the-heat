@@ -13,7 +13,7 @@ export function CountPanel() {
   return (
     <div className="count-panel">
       <div className="count-header">
-        <span className="count-title mono">Shoe Info</span>
+        <span className="count-title mono">Count</span>
       </div>
 
       <div className="count-stats">

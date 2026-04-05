@@ -46,6 +46,24 @@
   margin-left: auto;
 }
 
+/* ─── Sidebar Toggle (mobile only) ───────────────────────────────────── */
+.sidebar-toggle {
+  display: none;
+  padding: 6px 10px;
+  font-size: 1.2rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  color: var(--gold-mid);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: var(--gold-mid);
+}
+
 /* ─── Body ───────────────────────────────────────────────────────────── */
 .app-body {
   display: flex;
@@ -63,6 +81,23 @@
   overflow: hidden;
 }
 
+/* ─── Sidebar Backdrop (mobile only) ─────────────────────────────────── */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.sidebar-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
 /* ─── Feedback Rail ──────────────────────────────────────────────────── */
 .feedback-rail {
   width: 340px;
@@ -74,6 +109,9 @@
     rgba(6, 16, 6, 0.95) 100%
   );
   overflow-y: auto;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ─── Footer ─────────────────────────────────────────────────────────── */
@@ -89,4 +127,58 @@
   color: var(--text-dim);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+/* ─── Responsive: Tablet (narrow sidebar) ────────────────────────────── */
+@media (max-width: 1024px) {
+  .feedback-rail {
+    width: 240px;
+  }
+  
+  .table-area {
+    padding: 16px 20px;
+  }
+}
+
+/* ─── Responsive: Mobile (slide-out sidebar) ─────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar-toggle {
+    display: block;
+  }
+  
+  .sidebar-backdrop {
+    display: block;
+  }
+  
+  .feedback-rail {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    max-width: 85vw;
+    z-index: 100;
+    transform: translateX(100%);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+  }
+  
+  .feedback-rail.open {
+    transform: translateX(0);
+  }
+  
+  .table-area {
+    padding: 12px 16px;
+  }
+  
+  .app-header {
+    padding: 8px 16px;
+  }
+  
+  .app-title {
+    font-size: 1.1rem;
+  }
+  
+  .header-ornament {
+    display: none;
+  }
 }

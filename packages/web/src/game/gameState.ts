@@ -45,6 +45,8 @@ export interface GameState {
   splitHands: Hand[];
   activeSplitIndex: number;
   feedback: DecisionFeedback | null;
+  // Dealing animation: cards dealt one at a time, step 0-4 (4 = complete)
+  dealStep: number;
 }
 
 export interface DecisionFeedback {
@@ -84,6 +86,7 @@ export function initialGameState(
     splitHands: [],
     activeSplitIndex: 0,
     feedback: null,
+    dealStep: 0,
   };
 }
 
@@ -92,6 +95,7 @@ export function initialGameState(
 export type GameAction =
   | { type: "SET_BET"; amount: number }
   | { type: "DEAL" }
+  | { type: "DEAL_CARD" }
   | {
       type: "PLAYER_ACTION";
       action: PlayerAction;
@@ -114,6 +118,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "DEAL":
       return handleDeal(state);
+
+    case "DEAL_CARD":
+      return handleDealCard(state);
 
     case "PLAYER_ACTION":
       return handlePlayerAction(state, action.action, action.recommended);
@@ -143,6 +150,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         splitHands: [],
         activeSplitIndex: 0,
         feedback: null,
+        dealStep: 0,
       };
     }
 
@@ -176,51 +184,65 @@ function handleDeal(state: GameState): GameState {
   ({ card: p2, state: s } = dealCard(s));
   ({ card: d2, state: s } = dealCard(s, false)); // hole card - don't count yet
 
-  const playerCards = [p1, p2];
-  const dealerCards = [d1, d2]; // d2 is hole card (face down)
-
-  const playerEval = evaluateHand(playerCards);
   const hand: Hand = {
     handId: makeHandId(),
     decisions: [],
     outcome: null,
     betAmount: s.pendingBet,
     payout: 0,
-    isBlackjack: playerEval.isBlackjack,
-    playerCards: playerCards,
-    dealerCards: dealerCards,
+    isBlackjack: false, // determined after all cards dealt
+    playerCards: [p1, p2],
+    dealerCards: [d1, d2],
   };
-
-  const newStack = s.playerStack - s.pendingBet;
-
-  if (playerEval.isBlackjack) {
-    // Resolve blackjack immediately (simplified: no dealer blackjack check for now)
-    const payout =
-      s.session.tableRules.blackjackPayout === "3:2"
-        ? Math.floor(s.pendingBet * 1.5)
-        : Math.floor(s.pendingBet * 1.2);
-    const resolvedHand: Hand = {
-      ...hand,
-      outcome: "blackjack",
-      payout,
-    };
-    return finishHand(
-      s,
-      resolvedHand,
-      newStack + s.pendingBet + payout,
-      dealerCards,
-    );
-  }
 
   return {
     ...s,
-    phase: "playerTurn",
-    playerStack: newStack,
+    phase: "dealing",
+    playerStack: s.playerStack - s.pendingBet,
     currentHand: hand,
     splitHands: [],
     activeSplitIndex: 0,
     holeCardCounted: false,
     feedback: null,
+    dealStep: 0,
+  };
+}
+
+// Called once per card during the dealing animation. Deal order: p1, d1, p2, d2(hole).
+function handleDealCard(state: GameState): GameState {
+  if (state.phase !== "dealing" || !state.currentHand) return state;
+
+  const nextStep = state.dealStep + 1;
+
+  // Not done yet — just advance the step so Table renders one more card
+  if (nextStep < 4) {
+    return { ...state, dealStep: nextStep };
+  }
+
+  // All 4 cards revealed — transition to playerTurn (or resolve blackjack)
+  const hand = state.currentHand;
+  const playerEval = evaluateHand(hand.playerCards);
+  const finalHand: Hand = { ...hand, isBlackjack: playerEval.isBlackjack };
+
+  if (playerEval.isBlackjack) {
+    const payout =
+      state.session.tableRules.blackjackPayout === "3:2"
+        ? Math.floor(state.pendingBet * 1.5)
+        : Math.floor(state.pendingBet * 1.2);
+    const resolvedHand: Hand = { ...finalHand, outcome: "blackjack", payout };
+    return finishHand(
+      { ...state, dealStep: 4 },
+      resolvedHand,
+      state.playerStack + state.pendingBet + payout,
+      hand.dealerCards,
+    );
+  }
+
+  return {
+    ...state,
+    phase: "playerTurn",
+    currentHand: finalHand,
+    dealStep: 4,
   };
 }
 

@@ -42,7 +42,7 @@ export function BettingPanel() {
     setCustomInput(e.target.value)
     const val = parseInt(e.target.value, 10)
     if (!isNaN(val) && val > 0) {
-      dispatch({ type: 'SET_BET', amount: Math.min(val, playerStack) })
+      dispatch({ type: 'SET_BET', amount: Math.min(val, playerStack, maxBet) })
       setHasSelectedBet(true)
     }
   }
@@ -55,7 +55,7 @@ export function BettingPanel() {
 
   return (
     <div className="betting-panel">
-      <div className="bet-quick-row">
+      <div className="bet-chips-row">
         {QUICK_BETS.map(({ value, color }) => (
           <button
             key={value}
@@ -66,36 +66,32 @@ export function BettingPanel() {
             <span className="chip-value mono">{value}</span>
           </button>
         ))}
+      </div>
+
+      <div className="bet-controls-row">
         <input
           type="number"
           className="bet-custom-input mono"
           placeholder="Custom"
           value={customInput}
-          min={1}
-          max={playerStack}
+          min={minBet}
+          max={Math.min(playerStack, maxBet)}
           onChange={handleCustom}
         />
+        <button
+          className="bet-action-btn bet-action-btn--secondary mono"
+          onClick={handleMinBet}
+        >
+          Min
+        </button>
+        <button
+          className="bet-action-btn bet-action-btn--primary serif"
+          onClick={handleDeal}
+          disabled={pendingBet <= 0 || pendingBet > playerStack}
+        >
+          Deal
+        </button>
       </div>
-
-      <div className="bet-summary mono">
-        Bet: <span className="bet-highlight">{pendingBet}</span>
-        &nbsp;·&nbsp;
-        Stack: <span className="stack-highlight">{playerStack}</span>
-      </div>
-
-      <button
-        className="deal-btn serif"
-        onClick={handleDeal}
-        disabled={pendingBet <= 0 || pendingBet > playerStack}
-      >
-        Deal
-      </button>
-            <button
-        className="deal-btn serif"
-        onClick={handleMinBet}
-      >
-        Min Bet
-      </button>
     </div>
   )
 }
