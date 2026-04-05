@@ -483,6 +483,19 @@ function handlePlayerAction(
       );
     }
 
+    // Auto-stand on hard 21
+    if (eval_.total === 21 && !eval_.isSoft) {
+      if (s.splitHands.length > 0) {
+        return advanceToNextSplitOrDealer(s, handWithNewCard, feedback);
+      }
+      return {
+        ...s,
+        currentHand: handWithNewCard,
+        phase: "dealerTurn",
+        feedback,
+      };
+    }
+
     // Keep splitHands in sync with currentHand during hit
     if (s.splitHands.length > 0) {
       const updatedSplitHands = s.splitHands.map((h, i) =>
