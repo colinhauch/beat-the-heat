@@ -98,6 +98,7 @@ export function Table() {
         <div className="zone-label mono">You</div>
         {splitHands.length > 0 ? (
           // Split hands view - show all hands side by side
+          // row-reverse CSS puts idx=0 (Hand 1) on RIGHT, idx=1 (Hand 2) on LEFT
           <div className="split-hands-container">
             {splitHands.map((hand, idx) => {
               const cards = getHandCards(hand);
@@ -105,7 +106,7 @@ export function Table() {
               const isActive =
                 idx === activeSplitIndex && (phase === "playerTurn" || phase === "splitDealing");
               const isResolved = hand.outcome !== null;
-              // With row-reverse: idx=0 is on right, idx=1+ is on left
+              // idx=0 is on RIGHT, idx=1+ is on LEFT - cards slide outward from center
               const splitAnim = idx === 0 ? 'split-right' as const : 'split-left' as const;
               return (
                 <div

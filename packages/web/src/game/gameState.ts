@@ -553,7 +553,10 @@ function handlePlayerAction(
     const [card1, card2] = tableState.playerHand;
 
     // Each hand starts with just 1 card - they'll each receive a card
-    // via splitDealing phase (with delay) when they become active
+    // via splitDealing phase (with delay) when they become active.
+    // Hand 1 (idx=0, displayed on RIGHT due to row-reverse) gets card2 (right card)
+    // Hand 2 (idx=1, displayed on LEFT) gets card1 (left card)
+    // This way cards slide outward without crossing.
     const hand1: Hand = {
       handId: makeHandId(),
       decisions: [],
@@ -561,7 +564,7 @@ function handlePlayerAction(
       betAmount: hand.betAmount,
       payout: 0,
       isBlackjack: false,
-      playerCards: [card1],
+      playerCards: [card2],
       dealerCards: hand.dealerCards,
     };
     const hand2: Hand = {
@@ -571,7 +574,7 @@ function handlePlayerAction(
       betAmount: hand.betAmount,
       payout: 0,
       isBlackjack: false,
-      playerCards: [card2],
+      playerCards: [card1],
       dealerCards: hand.dealerCards,
     };
 

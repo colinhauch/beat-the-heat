@@ -11,24 +11,23 @@
 }
 
 /* ─── Split Animations ───────────────────────────────────────────────── */
+/* Cards slide outward from center where they were as a pair.
+   split-left: card ends on LEFT, starts from center (right of final pos), slides left
+   split-right: card ends on RIGHT, starts from center (left of final pos), slides right */
 @keyframes card-split-left {
   from {
-    opacity: 0.7;
-    transform: translateX(60px);
+    transform: translateX(100px);
   }
   to {
-    opacity: 1;
     transform: translateX(0);
   }
 }
 
 @keyframes card-split-right {
   from {
-    opacity: 0.7;
-    transform: translateX(-60px);
+    transform: translateX(-100px);
   }
   to {
-    opacity: 1;
     transform: translateX(0);
   }
 }
@@ -46,11 +45,11 @@
 
 /* ─── Animation Variants ─────────────────────────────────────────────── */
 .card--anim-split-left {
-  animation: card-split-left 300ms ease-out both;
+  animation: card-split-left 350ms ease-out backwards;
 }
 
 .card--anim-split-right {
-  animation: card-split-right 300ms ease-out both;
+  animation: card-split-right 350ms ease-out backwards;
 }
 
 .card--anim-none {
