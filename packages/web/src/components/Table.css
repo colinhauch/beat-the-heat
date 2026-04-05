@@ -185,12 +185,17 @@
 
 /* Scale down cards when there are many hands */
 .split-hands-container .hand-row {
-  gap: 4px;
+  gap: 0;
 }
 
 .split-hands-container .card {
-  transform: scale(0.85);
+  transform: scale(0.80);
   transform-origin: center;
+}
+
+/* Stack cards with overlap - show enough of each to see rank/suit */
+.split-hands-container .hand-row .card:not(:first-child) {
+  margin-left: -35px;
 }
 
 .split-hand--active {
