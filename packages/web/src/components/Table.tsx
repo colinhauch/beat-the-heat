@@ -37,8 +37,8 @@ export function Table() {
     dealerCards = allDealerCards;
   }
 
-  // During player turn, hole card is face down
-  const showHoleCard = phase !== "playerTurn" && phase !== "dealing";
+  // During player turn (including splitDealing), hole card is face down
+  const showHoleCard = phase !== "playerTurn" && phase !== "dealing" && phase !== "splitDealing";
 
   // Hand totals
   const playerEval = playerCards.length > 0 ? evaluateHand(playerCards) : null;
@@ -103,8 +103,10 @@ export function Table() {
               const cards = getHandCards(hand);
               const handEval = evaluateHand(cards);
               const isActive =
-                idx === activeSplitIndex && phase === "playerTurn";
+                idx === activeSplitIndex && (phase === "playerTurn" || phase === "splitDealing");
               const isResolved = hand.outcome !== null;
+              // With row-reverse: idx=0 is on right, idx=1+ is on left
+              const splitAnim = idx === 0 ? 'split-right' as const : 'split-left' as const;
               return (
                 <div
                   key={hand.handId}
@@ -113,7 +115,11 @@ export function Table() {
                   <div className="split-hand-label mono">Hand {idx + 1}</div>
                   <div className="hand-row">
                     {cards.map((card, i) => (
-                      <CardDisplay key={`s${idx}-${i}-${card.rank}${card.suit}`} card={card} />
+                      <CardDisplay
+                        key={`s${idx}-${i}-${card.rank}${card.suit}`}
+                        card={card}
+                        animation={i === 0 ? splitAnim : 'deal'}
+                      />
                     ))}
                   </div>
                   <div className="hand-total mono">

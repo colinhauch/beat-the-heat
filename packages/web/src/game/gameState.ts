@@ -24,6 +24,7 @@ export type GamePhase =
   | "betting" // player is choosing bet
   | "dealing" // initial deal in progress
   | "playerTurn" // player making decisions
+  | "splitDealing" // waiting to deal card to new split hand
   | "dealerTurn" // dealer revealing / drawing
   | "resolution" // hand outcome shown
   | "shoeEnd"; // cut card reached, shuffle pending
@@ -102,6 +103,7 @@ export type GameAction =
       recommended: PlayerAction | null;
     }
   | { type: "DEALER_DRAW" }
+  | { type: "SPLIT_DEAL" } // deal a card to the active split hand
   | { type: "NEXT_HAND" }
   | { type: "SHUFFLE" }
   | { type: "CHANGE_RULES"; rules: TableRules }
@@ -127,6 +129,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "DEALER_DRAW":
       return handleDealerDraw(state);
+
+    case "SPLIT_DEAL":
+      return handleSplitDeal(state);
 
     case "NEXT_HAND":
       return handleNextHand(state);
@@ -322,7 +327,7 @@ function handleDebugHand(
 
 /**
  * After a split hand is done (stood, busted, or doubled), either:
- * - Move to the next split hand if more remain
+ * - Move to the next split hand if more remain (may need to deal a card first)
  * - Go to dealer turn if all split hands are complete
  */
 function advanceToNextSplitOrDealer(
@@ -338,12 +343,15 @@ function advanceToNextSplitOrDealer(
   const nextIndex = state.activeSplitIndex + 1;
 
   if (nextIndex < state.splitHands.length) {
-    // More split hands to play
+    const nextHand = updatedSplitHands[nextIndex];
+    // If next hand only has 1 card, need to deal to it first
+    const needsDeal = nextHand.playerCards.length === 1;
     return {
       ...state,
       splitHands: updatedSplitHands,
-      currentHand: updatedSplitHands[nextIndex],
+      currentHand: nextHand,
       activeSplitIndex: nextIndex,
+      phase: needsDeal ? "splitDealing" : "playerTurn",
       feedback,
     };
   }
@@ -361,6 +369,36 @@ function advanceToNextSplitOrDealer(
     currentHand: handForDealer,
     phase: "dealerTurn",
     feedback,
+  };
+}
+
+// ─── Split Deal ───────────────────────────────────────────────────────────────
+
+/**
+ * Deal a card to the active split hand (when it only has 1 card after split).
+ */
+function handleSplitDeal(state: GameState): GameState {
+  if (state.phase !== "splitDealing" || !state.currentHand) return state;
+
+  const { card, state: s } = dealCard(state);
+  const hand = state.currentHand;
+  const newCards = [...hand.playerCards, card];
+
+  const updatedHand: Hand = {
+    ...hand,
+    playerCards: newCards,
+  };
+
+  // Update splitHands array with the new hand
+  const updatedSplitHands = state.splitHands.map((h, i) =>
+    i === state.activeSplitIndex ? updatedHand : h,
+  );
+
+  return {
+    ...s,
+    currentHand: updatedHand,
+    splitHands: updatedSplitHands,
+    phase: "playerTurn",
   };
 }
 
@@ -512,15 +550,10 @@ function handlePlayerAction(
   }
 
   if (action === "split") {
-    let s = state;
     const [card1, card2] = tableState.playerHand;
-    let newCard1: Card, newCard2: Card;
-    ({ card: newCard1, state: s } = dealCard(s));
-    ({ card: newCard2, state: s } = dealCard(s));
 
-    const hand1Cards = [card1, newCard1];
-    const hand2Cards = [card2, newCard2];
-
+    // Each hand starts with just 1 card - they'll each receive a card
+    // via splitDealing phase (with delay) when they become active
     const hand1: Hand = {
       handId: makeHandId(),
       decisions: [],
@@ -528,7 +561,7 @@ function handlePlayerAction(
       betAmount: hand.betAmount,
       payout: 0,
       isBlackjack: false,
-      playerCards: hand1Cards,
+      playerCards: [card1],
       dealerCards: hand.dealerCards,
     };
     const hand2: Hand = {
@@ -538,39 +571,39 @@ function handlePlayerAction(
       betAmount: hand.betAmount,
       payout: 0,
       isBlackjack: false,
-      playerCards: hand2Cards,
+      playerCards: [card2],
       dealerCards: hand.dealerCards,
     };
 
-    const newStack = s.playerStack - hand.betAmount; // extra bet for second hand
+    const newStack = state.playerStack - hand.betAmount; // extra bet for second hand
 
     // Handle re-split: insert new hands at current position
-    if (s.splitHands.length > 0) {
+    if (state.splitHands.length > 0) {
       const newSplitHands = [
-        ...s.splitHands.slice(0, s.activeSplitIndex),
+        ...state.splitHands.slice(0, state.activeSplitIndex),
         hand1,
         hand2,
-        ...s.splitHands.slice(s.activeSplitIndex + 1),
+        ...state.splitHands.slice(state.activeSplitIndex + 1),
       ];
       return {
-        ...s,
+        ...state,
         playerStack: newStack,
         currentHand: hand1,
         splitHands: newSplitHands,
-        activeSplitIndex: s.activeSplitIndex, // stay at same index (now pointing to hand1)
-        phase: "playerTurn",
+        activeSplitIndex: state.activeSplitIndex, // stay at same index (now pointing to hand1)
+        phase: "splitDealing", // will deal card to hand1 after delay
         feedback,
       };
     }
 
     // First split
     return {
-      ...s,
+      ...state,
       playerStack: newStack,
       currentHand: hand1,
       splitHands: [hand1, hand2],
       activeSplitIndex: 0,
-      phase: "playerTurn",
+      phase: "splitDealing", // will deal card to hand1 after delay
       feedback,
     };
   }

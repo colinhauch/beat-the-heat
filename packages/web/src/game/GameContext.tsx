@@ -59,6 +59,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, [state.phase, state.currentHand?.dealerCards.length]);
 
+  // Auto-deal card to split hand after delay
+  useEffect(() => {
+    if (state.phase === "splitDealing") {
+      const timer = setTimeout(() => {
+        dispatch({ type: "SPLIT_DEAL" });
+      }, 500); // 500ms delay before dealing to split hand
+      return () => clearTimeout(timer);
+    }
+  }, [state.phase, state.activeSplitIndex]);
+
   function dispatchPlayerAction(action: PlayerAction) {
     // Compute recommendation before dispatching so it's available for feedback
     let recommended: PlayerAction | null = null;
