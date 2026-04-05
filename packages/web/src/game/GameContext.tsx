@@ -99,9 +99,7 @@ function buildCurrentTableStateForContext(state: GameState) {
   const rules = state.session.tableRules;
   const totalCards = rules.decks * 52;
 
-  const playerCards = hand.decisions.length === 0
-    ? hand.playerCards
-    : hand.decisions[hand.decisions.length - 1].tableState.playerHand;
+  const playerCards = hand.playerCards;
 
   const eval_ = evaluateHand(playerCards);
   const isInSplit = state.splitHands.length > 0;

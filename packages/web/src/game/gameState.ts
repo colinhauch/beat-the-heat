@@ -420,21 +420,10 @@ function handlePlayerAction(
     const newCards = [...tableState.playerHand, card];
     const eval_ = evaluateHand(newCards);
 
-    // Update the tableState in the last decision to reflect new card
-    const lastDecision =
-      updatedHand.decisions[updatedHand.decisions.length - 1];
-    const updatedDecision: Decision = {
-      ...lastDecision,
-      tableState: {
-        ...lastDecision.tableState,
-        playerHand: newCards,
-        handTotal: eval_.total,
-        isSoft: eval_.isSoft,
-      },
-    };
+    // Update playerCards on the hand (decision stores pre-action state)
     const handWithNewCard: Hand = {
       ...updatedHand,
-      decisions: [...updatedHand.decisions.slice(0, -1), updatedDecision],
+      playerCards: newCards,
     };
 
     if (eval_.isBust) {
@@ -475,21 +464,11 @@ function handlePlayerAction(
     const newBet = hand.betAmount * 2;
     const newStack = s.playerStack - hand.betAmount; // extra bet charged
 
-    const lastDecision =
-      updatedHand.decisions[updatedHand.decisions.length - 1];
-    const updatedDecision: Decision = {
-      ...lastDecision,
-      tableState: {
-        ...lastDecision.tableState,
-        playerHand: newCards,
-        handTotal: eval_.total,
-        isSoft: eval_.isSoft,
-      },
-    };
+    // Update playerCards on the hand (decision stores pre-action state)
     const handAfterDouble: Hand = {
       ...updatedHand,
+      playerCards: newCards,
       betAmount: newBet,
-      decisions: [...updatedHand.decisions.slice(0, -1), updatedDecision],
     };
 
     if (eval_.isBust) {
@@ -603,14 +582,8 @@ function buildCurrentTableState(state: GameState, hand: Hand): TableState {
   const rules = state.session.tableRules;
   const totalCards = rules.decks * 52;
 
-  // Player cards: from playerCards initially, then updated via decisions
-  let playerCards: Card[];
-  if (hand.decisions.length === 0) {
-    playerCards = hand.playerCards;
-  } else {
-    playerCards =
-      hand.decisions[hand.decisions.length - 1].tableState.playerHand;
-  }
+  // Player cards are always stored directly on the hand
+  const playerCards = hand.playerCards;
 
   const eval_ = evaluateHand(playerCards);
   const dealerUpcard = hand.dealerCards[0];
@@ -712,10 +685,7 @@ function resolveOneHand(hand: Hand, dealerCards: Card[]): Hand {
     return { ...hand, dealerCards: dealerCards };
   }
 
-  const playerCards =
-    hand.decisions.length > 0
-      ? hand.decisions[hand.decisions.length - 1].tableState.playerHand
-      : hand.playerCards;
+  const playerCards = hand.playerCards;
 
   const playerEval = evaluateHand(playerCards);
   const dealerEval = evaluateHand(dealerCards);

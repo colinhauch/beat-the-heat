@@ -44,9 +44,7 @@ export function FeedbackPanel() {
   let pendingTotal = ''
   let pendingDealer = ''
   if (isActive && currentHand) {
-    const cards = currentHand.decisions.length === 0
-      ? currentHand.playerCards
-      : currentHand.decisions[currentHand.decisions.length - 1].tableState.playerHand
+    const cards = currentHand.playerCards
     const ev = evaluateHand(cards)
     const pair = isPair(cards)
     const dealerUpcard = currentHand.dealerCards[0]
@@ -216,11 +214,9 @@ export function FeedbackPanel() {
                     )}
                     {results.length > 0 && [...results].reverse().map((r, ri) => {
                       const di = results.length - 1 - ri
-                      const preHand = di === 0
-                        ? hand.playerCards
-                        : hand.decisions[di - 1].tableState.playerHand
-                      const preEval = evaluateHand(preHand)
+                      // tableState now correctly stores the pre-action hand
                       const ts = r.decision.tableState
+                      const preEval = evaluateHand(ts.playerHand)
                       const correct = r.isCorrect === true
                       const wrong = r.isCorrect === false
                       const flipKey = `${hand.handId}-${di}`

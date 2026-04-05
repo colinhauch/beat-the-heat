@@ -8,13 +8,11 @@ import "./Table.css";
 function getPlayerCards(state: ReturnType<typeof useGame>["state"]): Card[] {
   const hand = state.currentHand;
   if (!hand) return [];
-  if (hand.decisions.length === 0) return hand.playerCards;
-  return hand.decisions[hand.decisions.length - 1].tableState.playerHand;
+  return hand.playerCards;
 }
 
 function getHandCards(hand: Hand): Card[] {
-  if (hand.decisions.length === 0) return hand.playerCards;
-  return hand.decisions[hand.decisions.length - 1].tableState.playerHand;
+  return hand.playerCards;
 }
 
 export function Table() {
