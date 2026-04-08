@@ -186,11 +186,22 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
 // ─── Deal ─────────────────────────────────────────────────────────────────────
 
+function logCountUpdate(card: Card, oldCount: number, newCount: number): void {
+  const delta = newCount - oldCount;
+  const deltaStr = delta > 0 ? `+ ${delta}` : delta < 0 ? `- ${Math.abs(delta)}` : "=";
+  const expr = delta === 0 ? `${oldCount} = ${newCount}` : `${oldCount} ${deltaStr} = ${newCount}`;
+  console.log(`Card Drawn: ${card.rank}${card.suit} | ${expr}`);
+}
+
 function dealCard(state: GameState, countIt = true): { card: Card; state: GameState } {
   const card = state.shoe[state.cardsDealt];
+  const oldCount = state.runningCount;
   const runningCount = countIt 
     ? state.runningCount + hiLoValue(card.rank)
     : state.runningCount;
+  if (countIt) {
+    logCountUpdate(card, oldCount, runningCount);
+  }
   return {
     card,
     state: { ...state, cardsDealt: state.cardsDealt + 1, runningCount },
@@ -719,9 +730,12 @@ function handleDealerDraw(state: GameState): GameState {
   // Count hole card when first revealed
   if (!s.holeCardCounted && s.currentHand) {
     const holeCard = s.currentHand.dealerCards[1];
+    const oldCount = s.runningCount;
+    const newCount = s.runningCount + hiLoValue(holeCard.rank);
+    logCountUpdate(holeCard, oldCount, newCount);
     s = {
       ...s,
-      runningCount: s.runningCount + hiLoValue(holeCard.rank),
+      runningCount: newCount,
       holeCardCounted: true,
     };
   }
@@ -856,20 +870,30 @@ function finishHand(
   _dealerCards?: Card[],
   feedback?: DecisionFeedback | null,
 ): GameState {
+  // Count hole card if it hasn't been counted yet (e.g., player bust/surrender/blackjack)
+  let s = state;
+  if (!s.holeCardCounted && hand.dealerCards[1]) {
+    const holeCard = hand.dealerCards[1];
+    const oldCount = s.runningCount;
+    const newCount = s.runningCount + hiLoValue(holeCard.rank);
+    logCountUpdate(holeCard, oldCount, newCount);
+    s = { ...s, runningCount: newCount, holeCardCounted: true };
+  }
+
   const updatedSession: Session = {
-    ...state.session,
-    hands: [...state.session.hands, hand],
+    ...s.session,
+    hands: [...s.session.hands, hand],
   };
 
-  const needsShuffle = state.cardsDealt >= state.cutCard;
+  const needsShuffle = s.cardsDealt >= s.cutCard;
 
   return {
-    ...state,
+    ...s,
     phase: needsShuffle ? "shoeEnd" : "resolution",
     session: updatedSession,
     currentHand: hand,
     playerStack: newStack,
-    feedback: feedback ?? state.feedback ?? null,
+    feedback: feedback ?? s.feedback ?? null,
   };
 }
 
