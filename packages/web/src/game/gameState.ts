@@ -259,6 +259,20 @@ function handleDealCard(state: GameState): GameState {
 
   // No Ace — check for player blackjack
   if (playerEval.isBlackjack) {
+    const dealerEval = evaluateHand(hand.dealerCards);
+
+    if (dealerEval.isBlackjack) {
+      // Both have blackjack = push
+      const resolvedHand: Hand = { ...finalHand, outcome: "push", payout: 0 };
+      return finishHand(
+        { ...state, dealStep: 4 },
+        resolvedHand,
+        state.playerStack + state.pendingBet,
+        hand.dealerCards,
+      );
+    }
+
+    // Only player has blackjack — pay out
     const payout =
       state.session.tableRules.blackjackPayout === "3:2"
         ? Math.floor(state.pendingBet * 1.5)
