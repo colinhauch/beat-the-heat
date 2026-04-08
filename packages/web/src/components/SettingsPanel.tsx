@@ -26,6 +26,7 @@ export function SettingsPanel() {
     pendingRules.surrenderAllowed !== activeRules.surrenderAllowed ||
     pendingRules.blackjackPayout !== activeRules.blackjackPayout ||
     pendingRules.decks !== activeRules.decks ||
+    pendingRules.cutCardPenetration !== activeRules.cutCardPenetration ||
     pendingRules.minBet !== activeRules.minBet ||
     pendingRules.maxBet !== activeRules.maxBet
 
@@ -112,6 +113,21 @@ export function SettingsPanel() {
           <option value="6">6</option>
           <option value="8">8</option>
         </select>
+
+        {/* Cut Card Penetration */}
+        <label className="settings-label mono">Cut Card</label>
+        <div className="settings-input-group">
+          <input
+            type="number"
+            className="settings-input mono"
+            value={+(pendingRules.decks * (1 - pendingRules.cutCardPenetration)).toFixed(1)}
+            min={0.5}
+            max={pendingRules.decks - 0.5}
+            step={0.5}
+            onChange={e => updatePendingRule('cutCardPenetration', 1 - parseFloat(e.target.value) / pendingRules.decks)}
+          />
+          <span className="settings-unit mono">decks behind</span>
+        </div>
       </div>
 
       <button

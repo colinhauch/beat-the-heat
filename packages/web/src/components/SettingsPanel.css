@@ -56,6 +56,22 @@
   cursor: pointer;
 }
 
+.settings-input-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.settings-input-group .settings-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-unit {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
 .settings-select:hover {
   border-color: var(--gold-mid);
 }
