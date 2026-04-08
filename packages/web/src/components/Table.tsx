@@ -3,6 +3,7 @@ import { evaluateHand } from "@beat-the-heat/shared";
 import { Card, Hand } from "@beat-the-heat/shared";
 import { CardDisplay } from "./CardDisplay";
 import { ControlDashboard } from "./ControlDashboard";
+import { InsurancePanel } from "./InsurancePanel";
 import "./Table.css";
 
 function getPlayerCards(state: ReturnType<typeof useGame>["state"]): Card[] {
@@ -37,8 +38,8 @@ export function Table() {
     dealerCards = allDealerCards;
   }
 
-  // During player turn (including splitDealing), hole card is face down
-  const showHoleCard = phase !== "playerTurn" && phase !== "dealing" && phase !== "splitDealing";
+  // During player turn (including splitDealing and insurance), hole card is face down
+  const showHoleCard = phase !== "playerTurn" && phase !== "dealing" && phase !== "splitDealing" && phase !== "insurance";
 
   // Hand totals
   const playerEval = playerCards.length > 0 ? evaluateHand(playerCards) : null;
@@ -87,9 +88,13 @@ export function Table() {
       {/* Center Divider */}
       <div className="table-center-rail">
         <div className="rail-line" />
-        <div className="rail-badge serif">
-          {showIdle ? "Place Your Bet" : outcomeLabel(state)}
-        </div>
+        {phase === "insurance" ? (
+          <InsurancePanel />
+        ) : (
+          <div className="rail-badge serif">
+            {showIdle ? "Place Your Bet" : outcomeLabel(state)}
+          </div>
+        )}
         <div className="rail-line" />
       </div>
 

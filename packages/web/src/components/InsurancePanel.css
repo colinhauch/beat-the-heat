@@ -1,0 +1,107 @@
+/* ─── Insurance Panel ────────────────────────────────────────────────── */
+.insurance-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--gold-mid);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.insurance-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.insurance-title {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold-mid);
+}
+
+.insurance-prompt {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-cream);
+  text-align: center;
+}
+
+.insurance-info {
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-align: center;
+  max-width: 260px;
+  line-height: 1.3;
+}
+
+/* ─── Insurance Actions ──────────────────────────────────────────────── */
+.insurance-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.insurance-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 16px;
+  min-width: 100px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.insurance-btn .btn-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.insurance-btn .btn-sublabel {
+  font-size: 0.55rem;
+  opacity: 0.8;
+}
+
+/* Accept button (gold) */
+.insurance-btn--accept {
+  background: linear-gradient(180deg,
+    rgba(201, 168, 76, 0.3) 0%,
+    rgba(201, 168, 76, 0.15) 100%
+  );
+  border: 1px solid var(--gold-mid);
+  color: var(--gold-bright);
+}
+
+.insurance-btn--accept:hover {
+  background: linear-gradient(180deg,
+    rgba(201, 168, 76, 0.4) 0%,
+    rgba(201, 168, 76, 0.25) 100%
+  );
+  border-color: var(--gold-bright);
+}
+
+/* Decline button (neutral) */
+.insurance-btn--decline {
+  background: rgba(100, 100, 100, 0.15);
+  border: 1px solid var(--text-dim);
+  color: var(--text-cream);
+}
+
+.insurance-btn--decline:hover {
+  background: rgba(100, 100, 100, 0.25);
+  border-color: var(--text-cream);
+}
+
+.insurance-btn:active {
+  transform: translateY(1px);
+}

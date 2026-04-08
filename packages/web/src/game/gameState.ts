@@ -23,6 +23,7 @@ export type GamePhase =
   | "idle" // waiting to start / place bet
   | "betting" // player is choosing bet
   | "dealing" // initial deal in progress
+  | "insurance" // dealer shows Ace, player offered insurance/even money
   | "playerTurn" // player making decisions
   | "splitDealing" // waiting to deal card to new split hand
   | "dealerTurn" // dealer revealing / drawing
@@ -48,6 +49,8 @@ export interface GameState {
   feedback: DecisionFeedback | null;
   // Dealing animation: cards dealt one at a time, step 0-4 (4 = complete)
   dealStep: number;
+  // Insurance
+  insuranceBet: number; // 0 if no insurance taken
 }
 
 export interface DecisionFeedback {
@@ -88,6 +91,7 @@ export function initialGameState(
     activeSplitIndex: 0,
     feedback: null,
     dealStep: 0,
+    insuranceBet: 0,
   };
 }
 
@@ -111,7 +115,10 @@ export type GameAction =
       type: "SET_DEBUG_HAND";
       playerCards: [Card, Card];
       dealerCards: [Card, Card];
-    }; // for testing specific scenarios, bypasses normal dealing and sets up a hand directly
+    } // for testing specific scenarios, bypasses normal dealing and sets up a hand directly
+  | { type: "TAKE_INSURANCE" }
+  | { type: "DECLINE_INSURANCE" }
+  | { type: "TAKE_EVEN_MONEY" };
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
@@ -156,11 +163,21 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         activeSplitIndex: 0,
         feedback: null,
         dealStep: 0,
+        insuranceBet: 0,
       };
     }
 
     case "SET_DEBUG_HAND":
       return handleDebugHand(state, action.playerCards, action.dealerCards);
+
+    case "TAKE_INSURANCE":
+      return handleTakeInsurance(state);
+
+    case "DECLINE_INSURANCE":
+      return handleDeclineInsurance(state);
+
+    case "TAKE_EVEN_MONEY":
+      return handleTakeEvenMoney(state);
 
     default:
       return state;
@@ -224,11 +241,23 @@ function handleDealCard(state: GameState): GameState {
     return { ...state, dealStep: nextStep };
   }
 
-  // All 4 cards revealed — transition to playerTurn (or resolve blackjack)
+  // All 4 cards revealed — check for insurance opportunity, then playerTurn or blackjack
   const hand = state.currentHand;
   const playerEval = evaluateHand(hand.playerCards);
   const finalHand: Hand = { ...hand, isBlackjack: playerEval.isBlackjack };
+  const dealerUpcard = hand.dealerCards[0];
 
+  // Dealer shows Ace — offer insurance (or even money if player has blackjack)
+  if (dealerUpcard.rank === "A") {
+    return {
+      ...state,
+      phase: "insurance",
+      currentHand: finalHand,
+      dealStep: 4,
+    };
+  }
+
+  // No Ace — check for player blackjack
   if (playerEval.isBlackjack) {
     const payout =
       state.session.tableRules.blackjackPayout === "3:2"
@@ -839,7 +868,151 @@ function handleNextHand(state: GameState): GameState {
     splitHands: [],
     activeSplitIndex: 0,
     feedback: null,
+    insuranceBet: 0,
   };
+}
+
+// ─── Insurance ────────────────────────────────────────────────────────────────
+
+/**
+ * Player takes insurance (half their bet). Insurance pays 2:1 if dealer has blackjack.
+ */
+function handleTakeInsurance(state: GameState): GameState {
+  if (state.phase !== "insurance" || !state.currentHand) return state;
+
+  const hand = state.currentHand;
+  const insuranceAmount = Math.floor(hand.betAmount / 2);
+  const newStack = state.playerStack - insuranceAmount;
+
+  // Check if dealer has blackjack
+  const dealerEval = evaluateHand(hand.dealerCards);
+
+  if (dealerEval.isBlackjack) {
+    // Insurance wins! Pays 2:1
+    const insurancePayout = insuranceAmount * 2;
+    // But original bet is lost (unless player also has blackjack = push)
+    const playerEval = evaluateHand(hand.playerCards);
+
+    if (playerEval.isBlackjack) {
+      // Both have blackjack: original bet pushes, insurance wins
+      const resolvedHand: Hand = { ...hand, outcome: "push", payout: insurancePayout };
+      return finishHand(
+        state,
+        resolvedHand,
+        newStack + hand.betAmount + insurancePayout, // bet returned + insurance win
+        hand.dealerCards,
+      );
+    }
+
+    // Dealer blackjack, player loses bet but wins insurance
+    const resolvedHand: Hand = { ...hand, outcome: "lose", payout: insurancePayout - hand.betAmount };
+    return finishHand(
+      state,
+      resolvedHand,
+      newStack + insurancePayout, // no bet return, just insurance win
+      hand.dealerCards,
+    );
+  }
+
+  // Dealer doesn't have blackjack — insurance bet lost, continue to normal play
+  const playerEval = evaluateHand(hand.playerCards);
+
+  if (playerEval.isBlackjack) {
+    // Player has blackjack, dealer doesn't — player wins blackjack payout
+    const payout =
+      state.session.tableRules.blackjackPayout === "3:2"
+        ? Math.floor(hand.betAmount * 1.5)
+        : Math.floor(hand.betAmount * 1.2);
+    const resolvedHand: Hand = { ...hand, outcome: "blackjack", payout: payout - insuranceAmount };
+    return finishHand(
+      state,
+      resolvedHand,
+      newStack + hand.betAmount + payout,
+      hand.dealerCards,
+    );
+  }
+
+  // Normal play continues
+  return {
+    ...state,
+    phase: "playerTurn",
+    playerStack: newStack,
+    insuranceBet: insuranceAmount,
+  };
+}
+
+/**
+ * Player declines insurance. Check for dealer blackjack, then continue.
+ */
+function handleDeclineInsurance(state: GameState): GameState {
+  if (state.phase !== "insurance" || !state.currentHand) return state;
+
+  const hand = state.currentHand;
+  const dealerEval = evaluateHand(hand.dealerCards);
+
+  if (dealerEval.isBlackjack) {
+    // Dealer has blackjack
+    const playerEval = evaluateHand(hand.playerCards);
+
+    if (playerEval.isBlackjack) {
+      // Both have blackjack = push
+      const resolvedHand: Hand = { ...hand, outcome: "push", payout: 0 };
+      return finishHand(
+        state,
+        resolvedHand,
+        state.playerStack + hand.betAmount,
+        hand.dealerCards,
+      );
+    }
+
+    // Dealer blackjack, player loses
+    const resolvedHand: Hand = { ...hand, outcome: "lose", payout: -hand.betAmount };
+    return finishHand(state, resolvedHand, state.playerStack, hand.dealerCards);
+  }
+
+  // Dealer doesn't have blackjack — check for player blackjack
+  const playerEval = evaluateHand(hand.playerCards);
+
+  if (playerEval.isBlackjack) {
+    const payout =
+      state.session.tableRules.blackjackPayout === "3:2"
+        ? Math.floor(hand.betAmount * 1.5)
+        : Math.floor(hand.betAmount * 1.2);
+    const resolvedHand: Hand = { ...hand, outcome: "blackjack", payout };
+    return finishHand(
+      state,
+      resolvedHand,
+      state.playerStack + hand.betAmount + payout,
+      hand.dealerCards,
+    );
+  }
+
+  // Normal play continues
+  return { ...state, phase: "playerTurn" };
+}
+
+/**
+ * Player takes even money (only available when player has blackjack and dealer shows Ace).
+ * Pays 1:1 immediately, avoiding risk of push if dealer also has blackjack.
+ */
+function handleTakeEvenMoney(state: GameState): GameState {
+  if (state.phase !== "insurance" || !state.currentHand) return state;
+
+  const hand = state.currentHand;
+  const playerEval = evaluateHand(hand.playerCards);
+
+  // Even money only applies when player has blackjack
+  if (!playerEval.isBlackjack) return state;
+
+  // Even money pays 1:1 (same as original bet)
+  const payout = hand.betAmount;
+  const resolvedHand: Hand = { ...hand, outcome: "blackjack", payout };
+  return finishHand(
+    state,
+    resolvedHand,
+    state.playerStack + hand.betAmount + payout,
+    hand.dealerCards,
+  );
 }
 
 function handleShuffle(state: GameState): GameState {
@@ -853,5 +1026,6 @@ function handleShuffle(state: GameState): GameState {
     holeCardCounted: false,
     cutCard,
     phase: "betting",
+    insuranceBet: 0,
   };
 }
