@@ -155,7 +155,8 @@
 
 .bet-custom-input {
   -moz-appearance: textfield;
-}s
+}
+
 .bet-custom-input::-webkit-inner-spin-button,
 .bet-custom-input::-webkit-outer-spin-button {
   -webkit-appearance: none;
