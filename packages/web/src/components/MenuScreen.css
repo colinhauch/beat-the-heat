@@ -1,0 +1,265 @@
+/* ─── Menu Screen Container ───────────────────────────────────────────── */
+.menu-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--felt-deep);
+  overflow: hidden;
+  z-index: 100;
+}
+
+/* ─── Ambient Glow Effects ────────────────────────────────────────────── */
+.menu-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.menu-glow--left {
+  top: -200px;
+  left: -200px;
+  background: radial-gradient(circle, var(--gold-mid) 0%, transparent 70%);
+}
+
+.menu-glow--right {
+  bottom: -200px;
+  right: -200px;
+  background: radial-gradient(circle, var(--felt-light) 0%, transparent 70%);
+}
+
+/* ─── Content Container ───────────────────────────────────────────────── */
+.menu-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  padding: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Header / Title ──────────────────────────────────────────────────── */
+.menu-header {
+  text-align: center;
+}
+
+.menu-ornament {
+  font-size: 1.2rem;
+  letter-spacing: 0.5em;
+  color: var(--gold-dim);
+  margin-bottom: 16px;
+  opacity: 0.7;
+}
+
+.menu-title {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-mid);
+  text-shadow:
+    0 0 40px rgba(201, 168, 76, 0.4),
+    0 0 80px rgba(201, 168, 76, 0.2);
+  margin-bottom: 8px;
+}
+
+.menu-subtitle {
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  font-style: italic;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+}
+
+/* ─── Decorative Cards ────────────────────────────────────────────────── */
+.menu-cards {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.menu-card {
+  position: absolute;
+  width: 100px;
+  height: 140px;
+  background: var(--card-face);
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 700;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 4px rgba(201, 168, 76, 0.1);
+  opacity: 0.15;
+}
+
+.menu-card span {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.menu-card--left {
+  top: 15%;
+  left: 10%;
+  transform: rotate(-15deg);
+  color: var(--black-suit);
+}
+
+.menu-card--right {
+  bottom: 15%;
+  right: 10%;
+  transform: rotate(12deg);
+  color: var(--red);
+}
+
+/* ─── Navigation Buttons ──────────────────────────────────────────────── */
+.menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 320px;
+}
+
+.menu-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 20px 32px;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+.menu-btn-label {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.menu-btn-desc {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+/* Primary button (Practice) */
+.menu-btn--primary {
+  background: linear-gradient(
+    180deg,
+    rgba(201, 168, 76, 0.25) 0%,
+    rgba(201, 168, 76, 0.1) 100%
+  );
+  border-color: var(--gold-mid);
+  color: var(--gold-bright);
+  box-shadow:
+    0 4px 20px rgba(201, 168, 76, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.menu-btn--primary:hover {
+  border-color: var(--gold-bright);
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 30px rgba(201, 168, 76, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.menu-btn--primary:active {
+  transform: translateY(0);
+}
+
+/* Secondary button (Debug) */
+.menu-btn--secondary {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: var(--gold-dim);
+  color: var(--text-cream);
+}
+
+.menu-btn--secondary:hover {
+  background: rgba(0, 0, 0, 0.4);
+  border-color: var(--gold-mid);
+  transform: translateY(-2px);
+}
+
+.menu-btn--secondary:active {
+  transform: translateY(0);
+}
+
+/* Disabled button (Career) */
+.menu-btn--disabled {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(100, 100, 100, 0.3);
+  color: var(--text-dim);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.menu-btn--disabled:hover {
+  transform: none;
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────── */
+.menu-footer {
+  margin-top: 20px;
+}
+
+.menu-footer-text {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0.5;
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .menu-title {
+    font-size: 2.2rem;
+  }
+
+  .menu-nav {
+    width: 280px;
+  }
+
+  .menu-btn {
+    padding: 16px 24px;
+  }
+
+  .menu-card {
+    display: none;
+  }
+}
