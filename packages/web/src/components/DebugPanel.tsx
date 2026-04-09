@@ -24,11 +24,13 @@ function makeCard(rank: Rank): Card {
 }
 
 export function DebugPanel() {
-  const { dispatch } = useGame();
+  const { state, dispatch } = useGame();
   const [p1, setP1] = useState<Rank>("A");
   const [p2, setP2] = useState<Rank>("6");
   const [d1, setD1] = useState<Rank>("10");
   const [d2, setD2] = useState<Rank>("7");
+
+  const nextCard = state.shoe[state.cardsDealt];
 
   function handleSetHand() {
     dispatch({
@@ -42,6 +44,13 @@ export function DebugPanel() {
     <div className="debug-panel">
       <div className="debug-header">
         <span className="debug-title mono">Debug</span>
+      </div>
+
+      <div className="debug-next-card">
+        <span className="debug-label mono">Next Card</span>
+        <span className="debug-card-value mono">
+          {nextCard ? `${nextCard.rank}${nextCard.suit}` : "—"}
+        </span>
       </div>
 
       <div className="debug-grid">
