@@ -268,22 +268,33 @@ function handleDealCard(state: GameState): GameState {
     };
   }
 
-  // No Ace — check for player blackjack
-  if (playerEval.isBlackjack) {
+  // Dealer shows 10-value — peek for blackjack
+  const isTenValue = ["10", "J", "Q", "K"].includes(dealerUpcard.rank);
+  if (isTenValue) {
     const dealerEval = evaluateHand(hand.dealerCards);
-
     if (dealerEval.isBlackjack) {
-      // Both have blackjack = push
-      const resolvedHand: Hand = { ...finalHand, outcome: "push", payout: 0 };
+      // Dealer blackjack — player loses (or pushes if also has blackjack)
+      if (playerEval.isBlackjack) {
+        const resolvedHand: Hand = { ...finalHand, outcome: "push", payout: 0 };
+        return finishHand(
+          { ...state, dealStep: 4 },
+          resolvedHand,
+          state.playerStack + state.pendingBet,
+          hand.dealerCards,
+        );
+      }
+      const resolvedHand: Hand = { ...finalHand, outcome: "lose", payout: -state.pendingBet };
       return finishHand(
         { ...state, dealStep: 4 },
         resolvedHand,
-        state.playerStack + state.pendingBet,
+        state.playerStack,
         hand.dealerCards,
       );
     }
+  }
 
-    // Only player has blackjack — pay out
+  // No dealer blackjack — check for player blackjack
+  if (playerEval.isBlackjack) {
     const payout =
       state.session.tableRules.blackjackPayout === "3:2"
         ? Math.floor(state.pendingBet * 1.5)
