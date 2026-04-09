@@ -91,7 +91,7 @@ export function BettingPanel() {
         <input
           type="number"
           className="bet-custom-input mono"
-          placeholder="Custom"
+          placeholder="Enter Bet"
           value={customInput}
           min={0}
           max={Math.min(playerStack, maxBet)}
