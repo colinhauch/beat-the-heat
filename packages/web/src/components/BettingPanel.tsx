@@ -64,14 +64,6 @@ export function BettingPanel() {
   return (
     <div className="betting-panel">
       <div className="bet-chips-row">
-        <button
-          className="chip-btn chip-btn--clear"
-          onClick={handleClearBet}
-          disabled={pendingBet === 0}
-          aria-label="Clear bet"
-        >
-          <span className="chip-clear-x">x</span>
-        </button>
         {QUICK_BETS.map(({ value, color }) => (
           <button
             key={value}
@@ -82,8 +74,15 @@ export function BettingPanel() {
             <span className="chip-value mono">{value}</span>
           </button>
         ))}
+        <button
+          className="chip-btn--clear"
+          onClick={handleClearBet}
+          disabled={pendingBet === 0}
+          aria-label="Clear bet"
+        >
+          <span className="chip-clear-x">X</span>
+        </button>
       </div>
-
       <div className="bet-limits mono">
         MIN: {minBet} | MAX: {maxBet}
       </div>
@@ -105,9 +104,10 @@ export function BettingPanel() {
           Min
         </button>
         <button
-          className="bet-action-btn bet-action-btn--primary serif"
+          className={`bet-action-btn bet-action-btn--primary serif ${!canDeal ? 'has-tooltip' : ''}`}
           onClick={handleDeal}
           disabled={!canDeal}
+          data-tooltip={!canDeal ? `This table has a ${minBet} chip minimum bet` : undefined}
         >
           Deal
         </button>

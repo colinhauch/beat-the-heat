@@ -51,17 +51,13 @@
   transform: translateY(-1px);
 }
 
-.chip-btn--active {
-  border-color: var(--gold-bright);
-  box-shadow:
-    0 3px 12px rgba(201,168,76,0.4),
-    0 0 0 2px rgba(201,168,76,0.2),
-    inset 0 1px 0 rgba(255,255,255,0.1);
-}
-
 .chip-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+.chip-btn--clear:hover:not(:disabled) {
+border-color: var(--red-bright);
 }
 
 /* Chip color variants */
@@ -89,12 +85,29 @@
 }
 .chip-btn--black::before { border-color: rgba(136,136,136,0.35); }
 
+/* Clear bet button variant */
 .chip-btn--clear {
-  background: radial-gradient(circle at 35% 35%, #4a4a4a 0%, #2a2a2a 60%, #1a1a1a 100%);
-  border-color: #666;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #000000 0%, #000000 60%, #000000 100%);
   width: 44px;
   height: 44px;
+  cursor: pointer;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 0, 0, 0.35);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow:
+    0 3px 8px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.08);
 }
+
 .chip-btn--clear::before { border-color: rgba(102,102,102,0.35); }
 .chip-btn--clear:disabled {
   opacity: 0.25;
@@ -226,4 +239,35 @@
 .bet-action-btn--secondary:hover {
   background: rgba(201, 168, 76, 0.2);
   border-color: var(--gold-mid);
+}
+
+/* ─── Custom Tooltip ──────────────────────────────────────────────────── */
+.bet-action-btn.has-tooltip {
+  position: relative;
+}
+
+.bet-action-btn.has-tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  margin-left: 30px;
+  padding: 6px 10px;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  white-space: nowrap;
+  color: var(--text-cream);
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+}
+
+.bet-action-btn.has-tooltip:hover::after {
+  opacity: 1;
 }
