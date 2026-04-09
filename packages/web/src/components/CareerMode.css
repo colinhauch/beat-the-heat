@@ -1,0 +1,389 @@
+/* ─── Career Mode Container ───────────────────────────────────────────── */
+.career-mode {
+  min-height: 100vh;
+  background: var(--felt-deep);
+}
+
+/* ─── Career Header ───────────────────────────────────────────────────── */
+.career-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  background: linear-gradient(
+    180deg,
+    var(--rail-dark) 0%,
+    var(--rail-mid) 60%,
+    var(--rail-dark) 100%
+  );
+  border-bottom: 2px solid var(--gold-dim);
+}
+
+.career-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-mid);
+  flex: 1;
+}
+
+.career-chips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--gold-dim);
+  border-radius: 4px;
+}
+
+.chips-label {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.chips-value {
+  font-size: 1rem;
+  color: var(--gold-bright);
+}
+
+/* ─── Career Hub Content ──────────────────────────────────────────────── */
+.career-hub,
+.career-shop {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.career-content,
+.shop-content {
+  flex: 1;
+  padding: 32px 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ─── Sections ────────────────────────────────────────────────────────── */
+.career-section {
+  margin-bottom: 40px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-mid);
+  margin-bottom: 16px;
+}
+
+.section-header .section-title {
+  margin-bottom: 0;
+}
+
+.shop-toggle {
+  padding: 6px 12px;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.shop-toggle:hover {
+  border-color: var(--gold-mid);
+  color: var(--gold-mid);
+}
+
+/* ─── Level Cards ─────────────────────────────────────────────────────── */
+.levels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.level-card {
+  padding: 20px;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 36, 23, 0.8) 0%,
+    rgba(6, 26, 16, 0.9) 100%
+  );
+  border: 2px solid var(--gold-dim);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  position: relative;
+}
+
+.level-card:hover:not(:disabled) {
+  border-color: var(--gold-mid);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.level-card--locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.level-card--completed {
+  border-color: var(--correct);
+}
+
+.level-status {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.status-badge {
+  font-size: 1rem;
+}
+
+.status-badge--complete {
+  color: var(--correct-glow);
+}
+
+.status-badge--locked {
+  opacity: 0.6;
+}
+
+.level-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-cream);
+  margin-bottom: 8px;
+}
+
+.level-desc {
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+
+.level-goal {
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--gold-mid);
+  margin-bottom: 8px;
+}
+
+.goal-label {
+  color: var(--text-dim);
+}
+
+.level-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.difficulty {
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  color: var(--text-dim);
+}
+
+.best-chips {
+  color: var(--gold-dim);
+}
+
+/* ─── Shop Preview ────────────────────────────────────────────────────── */
+.shop-empty,
+.shop-empty-full {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 24px;
+}
+
+.shop-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shop-item-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 4px;
+}
+
+.item-icon {
+  font-size: 1.2rem;
+}
+
+.item-name {
+  flex: 1;
+  font-family: var(--font-body);
+  color: var(--text-cream);
+}
+
+.item-cost {
+  font-size: 0.75rem;
+  color: var(--gold-mid);
+}
+
+/* ─── Shop Grid ───────────────────────────────────────────────────────── */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.shop-card {
+  padding: 20px;
+  background: linear-gradient(
+    180deg,
+    rgba(10, 36, 23, 0.8) 0%,
+    rgba(6, 26, 16, 0.9) 100%
+  );
+  border: 1px solid var(--gold-dim);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shop-card--unaffordable {
+  opacity: 0.6;
+}
+
+.shop-icon {
+  font-size: 2rem;
+}
+
+.shop-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-cream);
+}
+
+.shop-desc {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  flex: 1;
+}
+
+.shop-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+.shop-cost {
+  font-size: 0.75rem;
+  color: var(--gold-mid);
+}
+
+.shop-owned {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+.shop-buy {
+  margin-left: auto;
+  padding: 8px 16px;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(201, 168, 76, 0.2);
+  border: 1px solid var(--gold-mid);
+  border-radius: 4px;
+  color: var(--gold-bright);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.shop-buy:hover:not(:disabled) {
+  background: rgba(201, 168, 76, 0.3);
+}
+
+.shop-buy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--text-dim);
+  color: var(--text-dim);
+  background: transparent;
+}
+
+/* ─── Career Game View ────────────────────────────────────────────────── */
+.career-game {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.level-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  text-align: center;
+}
+
+.level-name-small {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold-mid);
+}
+
+.level-goal-small {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+/* ─── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .career-header {
+    flex-wrap: wrap;
+  }
+
+  .career-title {
+    order: -1;
+    flex-basis: 100%;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+
+  .levels-grid,
+  .shop-grid {
+    grid-template-columns: 1fr;
+  }
+}
