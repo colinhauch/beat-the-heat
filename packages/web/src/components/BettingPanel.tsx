@@ -17,7 +17,7 @@ export function BettingPanel() {
   const [hasSelectedBet, setHasSelectedBet] = useState(false)
 
   const setBet = (amount: number) => {
-    const clamped = Math.max(minBet, Math.min(amount, playerStack, maxBet))
+    const clamped = Math.max(0, Math.min(amount, playerStack, maxBet))
     dispatch({ type: 'SET_BET', amount: clamped })
     setCustomInput('')
   }
@@ -33,6 +33,12 @@ export function BettingPanel() {
     }
   }
 
+  const handleClearBet = () => {
+    dispatch({ type: 'SET_BET', amount: 0 })
+    setCustomInput('')
+    setHasSelectedBet(false)
+  }
+
   const handleMinBet = () => {
     setBet(minBet)
     setHasSelectedBet(false)
@@ -41,21 +47,31 @@ export function BettingPanel() {
   const handleCustom = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCustomInput(e.target.value)
     const val = parseInt(e.target.value, 10)
-    if (!isNaN(val) && val > 0) {
+    if (!isNaN(val) && val >= 0) {
       dispatch({ type: 'SET_BET', amount: Math.min(val, playerStack, maxBet) })
       setHasSelectedBet(true)
     }
   }
 
   const handleDeal = () => {
-    if (pendingBet > 0 && pendingBet <= playerStack) {
+    if (pendingBet >= minBet && pendingBet <= playerStack) {
       dispatch({ type: 'DEAL' })
     }
   }
 
+  const canDeal = pendingBet >= minBet && pendingBet <= playerStack
+
   return (
     <div className="betting-panel">
       <div className="bet-chips-row">
+        <button
+          className="chip-btn chip-btn--clear"
+          onClick={handleClearBet}
+          disabled={pendingBet === 0}
+          aria-label="Clear bet"
+        >
+          <span className="chip-clear-x">x</span>
+        </button>
         {QUICK_BETS.map(({ value, color }) => (
           <button
             key={value}
@@ -68,13 +84,17 @@ export function BettingPanel() {
         ))}
       </div>
 
+      <div className="bet-limits mono">
+        MIN: {minBet} | MAX: {maxBet}
+      </div>
+
       <div className="bet-controls-row">
         <input
           type="number"
           className="bet-custom-input mono"
           placeholder="Custom"
           value={customInput}
-          min={minBet}
+          min={0}
           max={Math.min(playerStack, maxBet)}
           onChange={handleCustom}
         />
@@ -87,7 +107,7 @@ export function BettingPanel() {
         <button
           className="bet-action-btn bet-action-btn--primary serif"
           onClick={handleDeal}
-          disabled={pendingBet <= 0 || pendingBet > playerStack}
+          disabled={!canDeal}
         >
           Deal
         </button>

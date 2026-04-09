@@ -5,6 +5,7 @@
   align-items: center;
   gap: 14px;
   width: 100%;
+  padding-top: 8px;
 }
 
 /* ─── Chips Row ───────────────────────────────────────────────────────── */
@@ -88,6 +89,25 @@
 }
 .chip-btn--black::before { border-color: rgba(136,136,136,0.35); }
 
+.chip-btn--clear {
+  background: radial-gradient(circle at 35% 35%, #4a4a4a 0%, #2a2a2a 60%, #1a1a1a 100%);
+  border-color: #666;
+  width: 44px;
+  height: 44px;
+}
+.chip-btn--clear::before { border-color: rgba(102,102,102,0.35); }
+.chip-btn--clear:disabled {
+  opacity: 0.25;
+}
+
+.chip-clear-x {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #999;
+  position: relative;
+  z-index: 1;
+}
+
 .chip-value {
   font-size: 0.72rem;
   font-weight: 500;
@@ -95,6 +115,17 @@
   letter-spacing: 0.02em;
   position: relative;
   z-index: 1;
+}
+
+/* ─── Bet Limits ──────────────────────────────────────────────────────── */
+.bet-limits {
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  opacity: 0.6;
+  text-align: center;
+  margin-top: -6px;
+  margin-bottom: -6px;
 }
 
 /* ─── Custom Input ────────────────────────────────────────────────────── */
