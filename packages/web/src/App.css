@@ -64,6 +64,26 @@
   border-color: var(--gold-mid);
 }
 
+/* ─── Menu Back Button ───────────────────────────────────────────────── */
+.menu-back-btn {
+  padding: 6px 12px;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.menu-back-btn:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: var(--gold-mid);
+  color: var(--gold-mid);
+}
+
 /* ─── Body ───────────────────────────────────────────────────────────── */
 .app-body {
   display: flex;
