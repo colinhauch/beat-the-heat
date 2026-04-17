@@ -33,7 +33,7 @@ export const LEVELS: Level[] = [
       surrenderAllowed: true,
       blackjackPayout: '3:2',
       cutCardPenetration: 0.90,  // 0.10 decks behind = 90% penetration
-      minBet: 10,
+      minBet: 0,
       maxBet: 100,
     },
     introDialogue: {
